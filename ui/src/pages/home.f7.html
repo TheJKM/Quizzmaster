@@ -1,0 +1,360 @@
+<template>
+  <div class="page" data-name="home">
+    <div class="navbar navbar-large">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left"></div>
+        <div class="title sliding">Quizzmaster Anmeldung</div>
+        <div class="right"></div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Anmeldung</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      ${showStartSelection && $h`
+        <div class="block block-strong">
+          <p>Willkommen bei der Anmeldung zu ${eventName}.</p>
+          ${teamRegistrationOpen == 0 && $h`
+            <div class="row">
+              <button class="col button button-fill" @click="${createNewTeam}">Ich möchte ein neues Team öffnen</button>
+            </div>
+          `}
+          ${teamRegistrationOpen == 1 && $h`
+            <div class="row">
+              <p>Hinweis: Die Anmeldung neuer Teams ist derzeit geschlossen. Du kannst aber einem bestehenden Team beitreten.</p>
+            </div>
+          `}
+          ${teamRegistrationOpen == 2 && $h`
+            <div class="row">
+              <p>Hinweis: Die maximale Anzahl Teams wurde erreicht. Derzeit ist keine Neuanmeldung möglich. Du kannst aber einem bestehenden Team beitreten.</p>
+            </div>
+          `}
+          <p></p>
+          <div class="row">
+            <button class="col button button-fill" @click="${joinTeam}">Ich habe bereits ein Team</button>
+          </div>
+        </div>
+      `}
+      ${showNewTeamSlider && $h`
+        <form id="newTeamForm">
+          <div class="swiper-container question-swiper">
+            <div class="swiper-pagination"></div>
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <div class="block block-strong">
+                  <p>Wie soll dein Team heißen?</p>
+                  <div class="list no-hairlines-md">
+                    <ul>
+                      <li class="item-content item-input">
+                        <div class="item-inner">
+                          <div class="item-title item-label">Teamname</div>
+                          <div class="item-input-wrap">
+                            <input type="text" placeholder="Die verrückten Hühner" name="teamname" />
+                            <span class="input-clear-button"></span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="row">
+                    <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+                    <button class="col button button-fill" @click="${teamNameNext}"><span>Weiter </span><i class="icon f7-icons">arrow_right</i></button>
+                  </div>
+                </div>
+              </div>
+              ${questions.map((question, i) => $h`
+                <div class="swiper-slide">
+                  <div class="block block-strong">
+                    <p>${question.text}</p>
+                    <div class="list no-hairlines-md">
+                      <ul>
+                        <li class="item-content item-input">
+                          <div class="item-inner">
+                            <div class="item-title item-label">${question.question}</div>
+                            <div class="item-input-wrap">
+                              <input type="text" placeholder="Deine Antwort" name="question-${i}" />
+                              <span class="input-clear-button"></span>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="row">
+                      <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+                      <button class="col button button-fill" @click="${next}"><span>Weiter </span><i class="icon f7-icons">arrow_right</i></button>
+                    </div>
+                  </div>
+                </div>
+              `)}
+              <div class="swiper-slide">
+                <div class="block block-strong">
+                  <p>Um dir eine Zusammenfassung, eine Erinnerung sowie einen Einladungslink für dein Team zukommen zu lassen, benötigen wir deine E-Mail Adresse.</p>
+                  <div class="list no-hairlines-md">
+                    <ul>
+                      <li class="item-content item-input">
+                        <div class="item-inner">
+                          <div class="item-title item-label">E-Mail Adresse</div>
+                          <div class="item-input-wrap">
+                            <input type="email" placeholder="max.mustermann@example.com" name="email" />
+                            <span class="input-clear-button"></span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="row">
+                    <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+                    <button class="col button button-fill" @click="${eMailNext}"><span>Weiter </span><i class="icon f7-icons">arrow_right</i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="block block-strong">
+                  <p>Im nächsten Schritt meldest du dich mit deinem Discord-Account an. So können wir dich direkt unserem Discord-Server hinzufügen und die korrekten Rollen vergeben. Du wirst dazu auf die Discord-Webseite weitergeleitet, und gelangst anschließend wieder zurück auf diese Seite. Keine Angst, wir werden dich ausschließlich zu unserem Pubquiz-Server hinzufügen, und deine ID verwenden, um deine Antworten deinem Team zuzuordnen. Sämtliche Daten werden spätestens 7 Tage nach dem Event gelöscht.</p>
+                  <div class="row">
+                    <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+                    <button class="col button button-fill" @click="${discord}"><span>Weiter zu Discord </span><i class="icon f7-icons">arrow_right</i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      `}
+      ${showJoinTeamView && $h`
+        <form id="joinForm">
+          <div class="block block-strong">
+            <p>Bitte gib die Team-ID deines Teams ein. Du erhälst sie von deinem Team-Captain.</p>
+            <div class="list no-hairlines-md">
+              <ul>
+                <li class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Team-ID</div>
+                    <div class="item-input-wrap">
+                      <input type="text" placeholder="123456" name="teamid" />
+                      <span class="input-clear-button"></span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="row">
+              <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+              <button class="col button button-fill" @click="${checkTeamIdClick}"><span>Weiter </span><i class="icon f7-icons">arrow_right</i></button>
+            </div>
+          </div>
+        </form>
+      `}
+      ${showJoinFinalizeView && $h`
+        <div class="block block-strong">
+          <p>Im nächsten Schritt meldest du dich mit deinem Discord-Account an. So können wir dich direkt unserem Discord-Server hinzufügen und die korrekten Rollen vergeben. Du wirst dazu auf die Discord-Webseite weitergeleitet, und gelangst anschließend wieder zurück auf diese Seite. Keine Angst, wir werden dich ausschließlich zu unserem Pubquiz-Server hinzufügen, und deine ID verwenden, um deine Antworten deinem Team zuzuordnen. Sämtliche Daten werden spätestens 7 Tage nach dem Event gelöscht.</p>
+          <div class="row">
+            <button class="col button button-fill" @click="${discord}"><span>Weiter zu Discord </span><i class="icon f7-icons">arrow_right</i></button>
+          </div>
+        </div>
+      `}
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+import baseDomain from '../js/baseDomain.js';
+var config = require('config');
+export default (props, {$f7, $on, $update}) => {
+  let questions = [];
+  let eventName = "";
+  let teamId = "";
+
+  let showStartSelection = true;
+  let showNewTeamSlider = false;
+  let showJoinTeamView = false;
+  let showJoinFinalizeView = false;
+
+  let teamRegistrationOpen = 0;
+
+  let swiper;
+
+  const next = () => {
+    swiper.slideNext(200);
+  }
+
+  const prev = () => {
+    if (swiper.activeIndex == 0) {
+      showStart();
+    } else {
+      swiper.slidePrev(200);
+    }
+  }
+
+  const createNewTeam = () => {
+    showStartSelection = false;
+    showNewTeamSlider = true;
+    $update(() => {
+      swiper = $f7.swiper.create(".question-swiper", {
+        allowTouchMove: false,
+        pagination: {
+          el: '.swiper-pagination',
+          type: 'bullets',
+        },
+      });
+      document.getElementById("newTeamForm").addEventListener("click", (event) => {
+        event.preventDefault();
+      });
+    });
+  }
+
+  const joinTeam = () => {
+    showStartSelection = false;
+    showJoinTeamView = true;
+    $update(() => {
+      document.getElementById("joinForm").addEventListener("click", (event) => {
+        event.preventDefault();
+      });
+    });
+  }
+
+  const showStart = () => {
+    showStartSelection = true;
+    showJoinTeamView = false;
+    showNewTeamSlider = false;
+    $update();
+  }
+
+  const discord = () => {
+    let parameters = {
+      isNewTeam: showNewTeamSlider,
+    }
+    if (showNewTeamSlider) {
+      let data = $f7.form.convertToData('#newTeamForm');
+      let teamInformation = [];
+      let i = 0;
+      for (const question of questions) {
+        teamInformation.push(data["question-" + i]);
+        i++;
+      }
+      parameters["teamName"] = data.teamname;
+      parameters["teamInformation"] = JSON.stringify(teamInformation);
+      parameters["email"] = data.email;
+    } else {
+      parameters["teamId"] = teamId;
+    }
+    $f7.preloader.show();
+    api.send("/api/join/start", "PUT", parameters).then((result) => {
+      result = JSON.parse(result);
+      $f7.preloader.hide();
+      let url = "/api/join/authenticate";
+      url = config.development ? baseDomain + url : url;
+      window.location.href = url + "/" + result.user + "/" + result.team;
+    });
+  }
+
+  const checkTeamIdClick = () => {
+    let data = $f7.form.convertToData('#joinForm');
+    checkTeamId(data.teamid);
+  }
+
+  const checkTeamId = (id) => {
+    $f7.preloader.show();
+    api.send("/api/join/checkid/" + id, "GET", {}).then((result) => {
+      $f7.preloader.hide();
+      if (result == "EXISTS") {
+        teamId = id;
+        showStartSelection = false;
+        showJoinTeamView = false;
+        showJoinFinalizeView = true;
+        $update();
+      } else {
+        $f7.dialog.alert("Diese Team-ID existiert leider nicht.");
+      }
+    });
+  }
+
+  const teamNameNext = () => {
+    let data = $f7.form.convertToData('#newTeamForm');
+    if (data.teamname != "") {
+      next();
+    } else {
+      $f7.dialog.alert("Bitte gib einen Namen für dein Team an.", "Eingabefehler");
+    }
+  }
+
+  const eMailNext = () => {
+    let data = $f7.form.convertToData('#newTeamForm');
+    if (validateEmail(data.email)) {
+      next();
+    } else {
+      $f7.dialog.alert("Bitte gib einegültige E-Mail Adresse an.", "Eingabefehler");
+    }
+  }
+
+  const validateEmail = (input) => {
+    if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input)) {
+      return true;
+    }
+    return false;
+  }
+
+  $on("pageInit", () => {
+    if (typeof(props.id) != "undefined") {
+      if (props.id.startsWith("start")) {
+        showStartSelection = false;
+        $update();
+        let type = props.id.split("_")[1];
+        setTimeout(() => {
+          switch(type) {
+            case "success":
+              $f7.dialog.alert("Du hast dich erfolgreich registriert.", "Fertig!", () => {
+                window.location.href = "https://discord.com/app";
+              });
+              break;
+            case "database":
+              $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte versuche es erneut. Sollte das Problem weiterhin bestehen, schreibe bitte dem Organisationsteam.", () => {
+                window.location.href = "/";
+              });
+              break;
+            case "discord":
+              $f7.dialog.alert("Es ist ein Problem mit deinem Discord-Account aufgetreten. Bitte versuche es erneut. Sollte das Problem weiterhin bestehen, schreibe bitte dem Organisationsteam.", () => {
+                window.location.href = "/";
+              });
+              break;
+            case "session":
+              $f7.dialog.alert("Die Seite wurde mit invaliden Daten aufgerufen.", () => {
+                window.location.href = "/";
+              });
+              break;
+            case "mail":
+              $f7.dialog.alert("Leider ist ein Fehler beim Versand der Bestätigungs-E-Mail aufgetreten. Bitte wende dich an die Organisatoren.", () => {
+                window.location.href = "/";
+              });
+              break;
+          }
+        }, 100);
+      } else {
+        checkTeamId(props.id);
+      }
+    } else {
+      $f7.preloader.show();
+      api.send("/api/join/questions", "GET", {}).then((result) => {
+        result = JSON.parse(result);
+        $f7.preloader.hide();
+        questions = result.questions;
+        eventName = result.eventName;
+        $update();
+      });
+      api.send("/api/teamregistration", "GET", {}).then((result) => {
+        if (result == "OPEN") {
+          teamRegistrationOpen = 0;
+        } else if (result == "FULL") {
+          teamRegistrationOpen = 2;
+        } else {
+          teamRegistrationOpen = 1;
+        }
+        $update();
+      });
+    }
+  })
+
+  return $render;
+}
+</script>

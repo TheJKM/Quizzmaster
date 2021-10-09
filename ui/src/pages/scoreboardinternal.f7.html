@@ -1,0 +1,367 @@
+<template>
+  <div class="page" data-name="scoreboardinternal">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Scoreboard (interne Ansicht)</div>
+        <div class="right">
+          <p class="rightspace">LIVE</p><div class="gauge gauge-live"></div>
+        </div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Scoreboard (interne Ansicht)</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">${title}</div>
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Platzierung</th>
+            <th class="label-cell">Team</th>
+            <th class="label-cell">Punkte</th>
+            ${data.questions.map((question) => $h`
+              <th class="label-cell">Frage ${question.displayId}</th>
+            `)}
+          </thead>
+          <tbody>
+            ${data.teams.map((team) => $h`
+              <tr>
+                <td class="label-cell">${team.place}</td>
+                <td class="label-cell">${team.name}</td>
+                <td class="label-cell">${team.points}</td>
+                ${data.questions.map((question) => $h`
+                  <td class="label-cell">
+                    ${isAdmin && $h`
+                      <a href="#" @click="${() => showAnswer(question.id, team.id)}">
+                        ${question.state <= 4 && $h`
+                          <i class="icon f7-icons">clock_fill</i>
+                        `}
+                        ${question.state > 4 && $h`
+                          ${getQuestionPoints(question.id, team.id)}
+                        `}
+                      </a>
+                    `}
+                    ${!isAdmin && $h`
+                      <span>
+                        ${question.state <= 4 && $h`
+                          <i class="icon f7-icons">clock_fill</i>
+                        `}
+                        ${question.state > 4 && $h`
+                          ${getQuestionPoints(question.id, team.id)}
+                        `}
+                      </span>
+                    `}
+                  </td>
+                `)}
+              </tr>
+            `)}
+          </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${data.teams.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup popup-push popup-internalscoreboard" data-close-by-backdrop-click="false">
+      <div class="view view-init">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+              <div class="left">
+                <a href="#" class="link" @click="${invalidate}">
+                  <i class="icon f7-icons">xmark</i>
+                </a>
+              </div>
+              <div class="title">Bewertung bearbeiten</div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="page-content">
+            <div class="block-title">Frage</div>
+            <div class="block block-strong">
+              ${currentQuestion.question}
+            </div>
+            <div class="block-title">Hinweis für Auswertung</div>
+            <div class="block block-strong">
+              ${currentQuestion.hint}
+            </div>
+            <div class="block-title">Antwort des Teams</div>
+            <div class="block block-strong">
+              ${currentQuestion.value}
+            </div>
+            <div class="block-title">Maximal mögliche Punktzahl</div>
+            <div class="block block-strong">
+              ${currentQuestion.maxPoints}
+            </div>
+            <form id="grading-form">
+              <div class="list">
+                <ul>
+                  <li>
+                    <div class="item-content">
+                      <div class="item-inner">
+                        <div class="item-title">Punktzahl</div>
+                        <div class="item-after">
+                          <div class="stepper stepper-points">
+                            <div class="stepper-button-minus"></div>
+                            <div class="stepper-value">0</div>
+                            <div class="stepper-button-plus"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </form>
+            <div class="block row">
+              <button class="col button button-fill" @click="${update}"><span>Bewertung speichern</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let data = {teams: [], questions: []};
+  let title = "Noch keine Fragen freigegeben.";
+  let gauge = null;
+  let counter = 0;
+  let interval = null;
+  let currentQuestion = {
+    question: "-",
+    hint: "-",
+    value: "-",
+    maxPoints: "-",
+    points: -1,
+  };
+  let isAdmin = false;
+
+  const isQuestionReady = (id) => {
+    for (const question of data.questions) {
+      if (question.id == id) {
+        return question.state == 5;
+      }
+    }
+    return false;
+  }
+
+  const getQuestionPoints = (questionId, teamId) => {
+    for (const team of data.teams) {
+      if (team.id == teamId) {
+        for (const answer of team.answers) {
+          if (answer.questionId == questionId) {
+            return answer.points == null ? "-" : answer.points;
+          }
+        }
+      }
+    }
+    return "?"
+  }
+
+  const loadData = () => {
+    $f7.preloader.show();
+    api.send("/api/scoreboard-private", "GET", {}).then((result) => {
+      data = JSON.parse(result);
+      let previous = 0;
+      let isRange = false;
+      for (const q of data.questions) {
+        if (q.state == 5) {
+          if (previous == 0) {
+            title = "Freigegebene Fragen: " + q.displayId;
+            previous = q.displayId;
+          } else if (previous == (q.displayId - 1)) {
+            isRange = true;
+            previous = q.displayId;
+          } else {
+            if (isRange) {
+              isRange = false;
+              title += " - " + previous + ", " + q.displayId;
+            } else {
+              title += ", " + q.displayId
+            }
+            previous = q.displayId;
+          }
+        }
+      }
+      if (isRange) {
+        title += " - " + previous;
+      }
+      for (const team of data.teams) {
+        let p = 0;
+        for (const answer of team.answers) {
+          p += answer.points == null ? 0 : answer.points;
+        }
+        team.points = p;
+      }
+      let place = 1;
+      let actualPoints = 0;
+      let counter = 1;
+      for (const team of data.teams) {
+        if (team.points != actualPoints && actualPoints != 0) {
+          place = counter;
+        }
+        team.place = team.points == 0 ? "-" : place;
+        actualPoints = team.points;
+        counter++;
+      }
+      $f7.preloader.hide();
+      $update();
+    });
+    api.send("/api/permission", "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      isAdmin = result.isAdmin;
+      $update();
+    });
+  }
+
+  const showAnswer = (questionId, teamId) => {
+    $f7.preloader.show();
+    let answerId = -1;
+    for (const team of data.teams) {
+      if (team.id == teamId) {
+        for (const answer of team.answers) {
+          if (answer.questionId == questionId) {
+            answerId = answer.id;
+          }
+        }
+      }
+    }
+    for (const question of data.questions) {
+      if (question.id == questionId) {
+        currentQuestion.question = question.question == "" ? "-" : question.question;
+        currentQuestion.hint = question.hint == "" ? "-" : question.hint;
+        currentQuestion.maxPoints = question.maxPoints == "" ? "-" : question.maxPoints;
+        currentQuestion.type = question.type;
+        currentQuestion.options = JSON.parse(question.options);
+      }
+    }
+    if (answerId < 0) {
+      $f7.preloader.hide();
+      return;
+    }
+    currentQuestion.answerId = answerId;
+    api.send("/api/answer/" + answerId, "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      switch(currentQuestion.type) {
+        case 0:
+          currentQuestion.value = result.value;
+          break;
+        case 1:
+          if (result.value == null) {
+            currentQuestion.value = "-";
+          } else {
+            let number = parseInt(result.value) + 1;
+            currentQuestion.value = "Option " + number + " (" + currentQuestion.options[result.value] + ")";
+          }
+          break;
+        case 2:
+          if (result.value == null) {
+            currentQuestion.value = "-";
+          } else {
+            currentQuestion.value = result.value == 1 ? "Wahr" : "Falsch";
+          }
+          break;
+      }
+
+      currentQuestion.points = result.points;
+      $f7.popup.open(".popup-internalscoreboard");
+      $f7.stepper.create({
+        el: ".stepper-points",
+        step: 0.5,
+        min: 0,
+        max: currentQuestion.maxPoints,
+        value: currentQuestion.points
+      });
+      $f7.preloader.hide();
+      $update(() => {
+        $f7.stepper.setValue(".stepper-points", currentQuestion.points);
+      });
+    })
+  }
+
+  const update = () => {
+    $f7.preloader.show();
+    let newPoints = $f7.stepper.getValue(".stepper-points");
+    api.send("/api/answer/" + currentQuestion.answerId, "POST", {points: newPoints}).then((result) => {
+      $f7.preloader.hide();
+      if (result == "SUCCESS") {
+        $f7.dialog.alert("Bepunktung erfolgreich aktualisiert.");
+      } else {
+        $f7.dialog.alert("Es ist ein Fehler aufgetreten.");
+      }
+      invalidate();
+      loadData();
+    });
+  }
+
+  const invalidate = () => {
+    currentQuestion = {
+      question: "-",
+      hint: "-",
+      value: "-",
+      maxPoints: "-",
+      points: -1,
+    };
+    $f7.stepper.destroy(".stepper-points");
+    $f7.popup.close(".popup-internalscoreboard");
+  }
+
+  $on("pageInit", () => {
+    loadData();
+    interval = setInterval(() => {
+      if (counter == 30) {
+        loadData();
+        counter = 0;
+      }
+      gauge.update({
+        value: (30 - counter) / 30,
+      });
+      counter++;
+    }, 1000);
+    gauge = $f7.gauge.create({
+      el: ".gauge-live",
+      type: "semicircle",
+      value: 1,
+      size: 60,
+      borderColor: '#2196f3',
+      borderWidth: 10,
+    });
+  })
+
+  $on("pageBeforeOut", () => {
+    clearInterval(interval);
+  })
+
+  return $render;
+};
+</script>

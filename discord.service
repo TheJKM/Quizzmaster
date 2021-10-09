@@ -1,0 +1,10 @@
+[Unit]
+Description=Quizzmaster Discord Service
+After=network.target
+
+[Service]
+ExecStart=python3 discordService.py
+WorkingDirectory=/root/quizzmaster/api
+
+[Install]
+WantedBy=multi-user.target

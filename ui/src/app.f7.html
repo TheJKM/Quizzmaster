@@ -1,0 +1,74 @@
+<template>
+  <div id="app">
+    <div class="view view-main view-init safe-areas" data-url="/"></div>
+    <!-- Login Screen -->
+    <div class="login-screen" id="my-login-screen">
+      <div class="view">
+        <div class="page">
+          <div class="page-content login-screen-content">
+            <div class="login-screen-title">Quizzmaster Backend</div>
+            <div class="list">
+              <ul>
+                <li class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Nutzername</div>
+                    <div class="item-input-wrap">
+                      <input type="text" name="username" placeholder="max.mustermann" value="${username}" @input="${updateUsername}"/>
+
+                    </div>
+                  </div>
+                </li>
+                <li class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Passwort</div>
+                    <div class="item-input-wrap">
+                      <input type="password" name="password" placeholder="Geheim (was sonst...)" value="${password}" @input="${updatePassword}"/>
+
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="list">
+              <ul>
+                <li>
+                  <a href="#" class="item-link list-button login-button" @click="${doLogin}">Anmelden</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  import api from './js/api.js';
+  import my from './js/my.js';
+  export default (props, { $f7, $update }) => {
+    let username = '';
+    let password = '';
+
+    const updateUsername = (e) => {
+      username = e.target.value;
+      $update();
+    }
+
+    const updatePassword = (e) => {
+      password = e.target.value;
+      $update();
+    }
+
+    const doLogin = () => {
+      api.send("/api/login", "POST", {username: username, password: password}).then((result) => {
+        if (result == "SUCCESS") {
+          my.loggedIn = username;
+          $f7.loginScreen.close();
+          $f7.views.main.router.refreshPage();
+        }
+      });
+    }
+
+    return $render;
+  }
+</script>

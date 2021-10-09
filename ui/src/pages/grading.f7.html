@@ -1,0 +1,161 @@
+<template>
+  <div class="page" data-name="grading">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Auswertung</div>
+        <div class="right"></div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Auswertung</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">Zur Auswertung registrieren</div>
+      <div class="block block-strong">
+        Drücke auf den blauen Knopf, um eine Antwort auszuwerten. Eine Antwort wird dir in diesem Moment fest zugewiesen und für Andere gesperrt. Solltest du die Antwort nicht bepunkten können, bitten wir dich, dies dem Administrationsteam mitzuteilen, damit die Antwort wieder freigegeben werden kann.
+      </div>
+      ${answersAvailable && $h`
+        <div class="block">
+          <div class="row dash-buttons-row">
+            <button class="col button button-fill" @click="${apply}">Eine Antwort bepunkten</button>
+          </div>
+        </div>
+      `}
+      ${!answersAvailable && $h`
+        <div class="block">
+          <p>Im Moment sind keine auszuwertenden Antworten vorhanden. Bitte probiere es in Kürze erneut (lade dazu diese Seite neu).</p>
+        </div>
+      `}
+    </div>
+    <div class="popup popup-push popup-grading" data-close-by-backdrop-click="false">
+      <div class="view view-init">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+              <div class="left"></div>
+              <div class="title">Antwort bewerten</div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="page-content">
+            <div class="block-title">Frage</div>
+            <div class="block block-strong">
+              ${questionInGrading.question}
+            </div>
+            <div class="block-title">Hinweis für Auswertung</div>
+            <div class="block block-strong">
+              ${questionInGrading.hint}
+            </div>
+            <div class="block-title">Antwort des Teams</div>
+            <div class="block block-strong">
+              ${questionInGrading.value}
+            </div>
+            <div class="block-title">Maximal mögliche Punktzahl</div>
+            <div class="block block-strong">
+              ${questionInGrading.maxPoints}
+            </div>
+            <form id="grading-form">
+              <div class="list">
+                <ul>
+                  <li>
+                    <div class="item-content">
+                      <div class="item-inner">
+                        <div class="item-title">Punktzahl</div>
+                        <div class="item-after">
+                          <div class="stepper stepper-points">
+                            <div class="stepper-button-minus"></div>
+                            <div class="stepper-value">0</div>
+                            <div class="stepper-button-plus"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </form>
+            <div class="block row">
+              <button class="col button button-fill" @click="${grade}"><span>Bewertung speichern</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let answersAvailable = false;
+  let questionInGrading = {
+    id: -1,
+    question: "",
+    hint: "",
+    value: "",
+    maxPoints: 0
+  };
+
+  const loadAvailabilities = () => {
+    $f7.preloader.show();
+    api.send("/api/grading/available", "GET", {}).then((result) => {
+      if (result == "SUCCESS") {
+        answersAvailable = true;
+      } else {
+        answersAvailable = false;
+      }
+      $f7.preloader.hide();
+      $update();
+    })
+  }
+
+  const apply = () => {
+    $f7.preloader.show();
+    api.send("/api/grading/apply", "POST", {}).then((result) => {
+      result = JSON.parse(result);
+      $f7.preloader.hide();
+      questionInGrading = result;
+      $f7.popup.open(".popup-grading");
+      $f7.stepper.create({
+        el: ".stepper-points",
+        step: 0.5,
+        min: 0,
+        max: questionInGrading.maxPoints,
+        value: questionInGrading.maxPoints
+      });
+      $update();
+    })
+  }
+
+  const grade = () => {
+    let data = $f7.stepper.getValue(".stepper-points");
+    if (parseFloat(data) != data) {
+      $f7.dialog.alert("Bitte eine Punktzahl auswählen.");
+    } else {
+      $f7.preloader.show();
+      api.send("/api/grading/" + questionInGrading.id, "POST", {points: data}).then((result) => {
+        $f7.preloader.hide();
+        if (result == "SUCCESS") {
+          $f7.popup.close();
+          loadAvailabilities();
+        } else {
+          $f7.dialog.alert("Es ist ein Fehler aufgetreten, bitte erneut versuchen.");
+        }
+      })
+    }
+  }
+
+  $on("pageInit", () => {
+    loadAvailabilities();
+  })
+
+  return $render;
+};
+</script>

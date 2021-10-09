@@ -1,0 +1,10 @@
+Flask
+SQLAlchemy
+Flask-Login
+flask_cors
+discord.py
+requests
+requests_oauthlib
+Flask-Limiter
+passlib
+bcrypt

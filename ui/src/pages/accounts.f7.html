@@ -1,0 +1,235 @@
+<template>
+  <div class="page" data-name="accounts">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Accounts</div>
+        <div class="right">
+          <a href="#" class="link popup-open" data-popup=".popup-new-user">
+            <i class="icon f7-icons">plus</i>
+          </a>
+        </div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Accounts</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">Registrierte Backend-Benutzer</div>
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Benutzername</th>
+            <th class="label-cell">Administrationsrechte</th>
+            <th class="label-cell">Fragenverwaltungs-Rechte</th>
+            <th class="label-cell">Auswertungsrechte</th>
+            <th class="numeric-cell">Aktionen</th>
+          </thead>
+          <tbody>
+            ${users.map((user) => $h`
+              <tr>
+                <td class="label-cell">${user.username}</td>
+                ${user.isAdmin && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isAdmin', 'false')}"><i class="icon f7-icons color-green">checkmark_circle_fill</i></a></td>
+                `}
+                ${!user.isAdmin && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isAdmin', 'true')}"><i class="icon f7-icons color-red">xmark_circle_fill</i></a></td>
+                `}
+                ${user.isQuestionmaker && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isQuestionmaker', 'false')}"><i class="icon f7-icons color-green">checkmark_circle_fill</i></a></td>
+                `}
+                ${!user.isQuestionmaker && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isQuestionmaker', 'true')}"><i class="icon f7-icons color-red">xmark_circle_fill</i></a></td>
+                `}
+                ${user.isGrading && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isGrading', 'false')}"><i class="icon f7-icons color-green">checkmark_circle_fill</i></a></td>
+                `}
+                ${!user.isGrading && $h`
+                  <td class="label-cell"><a href="#" @click="${() => alterUser(user.id, 'isGrading', 'true')}"><i class="icon f7-icons color-red">xmark_circle_fill</i></a></td>
+                `}
+                <td class="numeric-cell"><a href="#" @click="${() => deleteUser(user.id)}"><i class="icon f7-icons">trash_fill</i></a></td>
+              </tr>
+            `)}
+          </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${users.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup popup-push popup-new-user">
+      <div class="navbar">
+        <div class="navbar-bg"></div>
+        <div class="navbar-inner sliding">
+          <div class="left">
+            <a href="#" class="link popup-close">
+              <i class="icon f7-icons">xmark</i>
+            </a>
+          </div>
+          <div class="title">Neuer Account</div>
+          <div class="right"></div>
+        </div>
+      </div>
+      <form class="list" id="new-user-form">
+        <ul>
+          <li>
+            <div class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label">Nutzername</div>
+                <div class="item-input-wrap">
+                  <input type="text" name="username" placeholder="max.mustermann" />
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label">Passwort</div>
+                <div class="item-input-wrap">
+                  <input type="password" name="password" placeholder="Geheim (was sonst...)" />
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title">Administratorrechte</div>
+                <div class="item-after">
+                  <label class="toggle toggle-init">
+                    <input type="checkbox" name="isAdmin" value="isAdmin" /><i class="toggle-icon"></i>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title">Fragenverwaltungs-Rechte</div>
+                <div class="item-after">
+                  <label class="toggle toggle-init">
+                    <input type="checkbox" name="isQuestionmaker" value="isQuestionmaker" /><i class="toggle-icon"></i>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title">Auswertungsrechte</div>
+                <div class="item-after">
+                  <label class="toggle toggle-init">
+                    <input type="checkbox" name="isGrading" value="isGrading" /><i class="toggle-icon"></i>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </form>
+      <div class="block row">
+        <button class="col button button-fill" @click="${addUser}"><span>Account anlegen</span></button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let users = [];
+
+  const deleteUser = (id) => {
+    let dialog = $f7.dialog.create({
+      title: "Account wirklich löschen?",
+      text: "Der Account wird für immer verloren sein (eine lange Zeit!)",
+      buttons: [
+        {
+          text: "Abbrechen",
+          close: true
+        },
+        {
+          text: "Löschen",
+          color: "red",
+          onClick: () => {
+            $f7.preloader.show();
+            api.send("/api/backenduser/" + id, "DELETE", {}).then((result) => {
+              $f7.preloader.hide();
+              dialog.close();
+              loadData();
+            });
+          }
+        }
+      ]
+    }).open();
+  }
+
+  const addUser = () =>  {
+    $f7.preloader.show();
+    let data = $f7.form.convertToData('#new-user-form');
+    let newUser = {
+      username: data.username,
+      password: data.password,
+      grading: data.isGrading.includes("isGrading") ? "true" : "false",
+      questionmaker: data.isQuestionmaker.includes("isQuestionmaker") ? "true" : "false",
+      admin: data.isAdmin.includes("isAdmin") ? "true" : "false"
+    }
+    api.send("/api/backenduser", "PUT", newUser).then((result) => {
+      $f7.preloader.hide();
+      $f7.popup.close();
+      loadData();
+    });
+  }
+
+  const alterUser = (id, prop, mode) => {
+    $f7.preloader.show();
+    let data = {}
+    data[prop] = mode;
+    api.send("/api/backenduser/" + id, "POST", data).then((result) => {
+      $f7.preloader.hide();
+      loadData();
+    });
+  }
+
+  const loadData = () => {
+    api.send("/api/backenduser", "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      users = result;
+      $update();
+    });
+  }
+
+  $on("pageInit", () => {
+    loadData();
+  })
+
+  return $render;
+};
+</script>

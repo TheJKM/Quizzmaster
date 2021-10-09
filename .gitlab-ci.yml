@@ -1,0 +1,16 @@
+image: node:current-buster
+
+before_script:
+  - cd ui
+  - npm install
+
+stages:
+  - build
+
+build_browser:
+  stage: build
+  script: npm run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - ui/www/

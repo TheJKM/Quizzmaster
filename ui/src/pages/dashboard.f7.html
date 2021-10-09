@@ -1,0 +1,115 @@
+<template>
+  <div class="page" data-name="dashboard">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left"></div>
+        <div class="title">Quizzmaster Dashboard</div>
+        <div class="right"></div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Dashboard</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block block-strong">
+        ${showQuestions && $h`
+          <div class="row dash-buttons-row">
+            <button class="col button button-fill" @click="${questions}"><span>Fragen</span></button>
+          </div>
+        `}
+        ${showGrading && $h`
+          <div class="row dash-buttons-row">
+            <button class="col button button-fill" @click="${grading}"><span>Auswertung</span></button>
+          </div>
+        `}
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${teams}"><span>Teams</span></button>
+        </div>
+        ${showAccounts && $h`
+          <div class="row dash-buttons-row">
+            <button class="col button button-fill" @click="${accounts}"><span>Accounts</span></button>
+          </div>
+        `}
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${scoreboard}"><span>Scoreboard</span></button>
+        </div>
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${scoreboardInternal}"><span>Scoreboard (intern)</span></button>
+        </div>
+        ${showAccounts && $h`
+          <div class="row dash-buttons-row">
+            <button class="col button button-fill" @click="${settings}"><span>Einstellungen</span></button>
+          </div>
+        `}
+        <div class="row">
+          <button class="col button button-fill color-red" @click="${logout}"><span>Logout</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+import my from '../js/my.js';
+export default (props, {$f7, $on, $update}) => {
+  let showQuestions = false;
+  let showGrading = false;
+  let showAccounts = false;
+
+  const questions = () => {
+    $f7.views.main.router.navigate("/questions");
+  }
+
+  const grading = () => {
+    $f7.views.main.router.navigate("/grading");
+  }
+
+  const teams = () => {
+    $f7.views.main.router.navigate("/teams");
+  }
+
+  const accounts = () => {
+    $f7.views.main.router.navigate("/accounts");
+  }
+
+  const scoreboard = () => {
+    $f7.views.main.router.navigate("/scoreboard");
+  }
+
+  const scoreboardInternal = () => {
+    $f7.views.main.router.navigate("/scoreboardinternal");
+  }
+
+  const settings = () => {
+    $f7.views.main.router.navigate("/settings");
+  }
+
+  const logout = () => {
+    api.send("/api/logout", "POST", {}).then(() => {
+      window.location.href = "/dashboard";
+    });
+  }
+
+  $on("pageInit", () => {
+    api.send("/api/permission", "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      my.isAdmin = result.isAdmin;
+      my.isGrading = result.isGrading;
+      my.isQuestionmaker = result.isQuestionmaker;
+      if (my.isAdmin || my.isQuestionmaker) {
+        showQuestions = true;
+      }
+      if (my.isAdmin || my.isGrading) {
+        showGrading = true;
+      }
+      if (my.isAdmin) {
+        showAccounts = true;
+      }
+      $update();
+    });
+  })
+
+  return $render;
+};
+</script>

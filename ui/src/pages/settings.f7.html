@@ -1,0 +1,105 @@
+<template>
+  <div class="page" data-name="settings">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Einstellungen</div>
+        <div class="right"></div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Einstellungen</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Einstellung</th>
+            <th class="label-cell">Wert</th>
+          </thead>
+          <tbody>
+            ${data.map((setting) => $h`
+              <tr>
+                <td class="label-cell">${setting.key}</td>
+                ${setting.value == "true" && $h`
+                  <td class="label-cell">
+                    <label class="toggle toggle-init">
+                      <input type="checkbox" checked @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                      <span class="toggle-icon"></span>
+                    </label>
+                  </td>
+                `}
+                ${setting.value != "true" && $h`
+                  <td class="label-cell">
+                    <label class="toggle toggle-init">
+                      <input type="checkbox" @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                      <span class="toggle-icon"></span>
+                    </label>
+                  </td>
+                `}
+              </tr>
+            `)}
+          </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${data.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let data = [];
+
+  const loadData = () => {
+    $f7.preloader.show();
+    api.send("/api/setting", "GET", {}).then((result) => {
+      data = JSON.parse(result);
+      $f7.preloader.hide();
+      $update();
+    })
+  }
+
+  const updateSetting = (key) => {
+    $f7.preloader.show();
+    let value = document.getElementById("setting-" + key).checked ? "true" : "false";
+    api.send("/api/setting/" + key + "/" + value, "POST", {}).then((result) => {
+      $f7.preloader.hide();
+      loadData();
+    })
+  }
+
+  $on("pageInit", () => {
+    loadData();
+  })
+
+  return $render;
+};
+</script>

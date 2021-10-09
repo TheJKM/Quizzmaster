@@ -1,0 +1,603 @@
+<template>
+  <div class="page" data-name="questions">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Fragen</div>
+        <div class="right">
+          <a href="#" class="link" @click="${addQuestion}">
+            <i class="icon f7-icons">plus</i>
+          </a>
+        </div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Fragen</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">Vorhandene Fragen</div>
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Auswahl</th>
+            <th class="label-cell">Nr.</th>
+            <th class="label-cell">Typ</th>
+            <th class="label-cell">Frage</th>
+            <th class="label-cell">Status</th>
+            <th class="label-cell">Aktion</th>
+          </thead>
+            <tbody>
+              ${questions.map((question, i) => $h`
+                <tr>
+                  <td class="label-cell">
+                    <label class="toggle toggle-init">
+                      <input type="checkbox" id="select-${question.id}" />
+                      <span class="toggle-icon"></span>
+                    </label>
+                  </td>
+                  <td class="label-cell">${question.displayId}</td>
+                  <td class="label-cell">${questionType.getString(question.type)}</td>
+                  <td class="label-cell">${question.question}</td>
+                  <td class="label-cell">${questionState.getString(question.state)}</td>
+                  <td class="label-cell">
+                    <a href="#" @click="${() => editQuestion(question.id)}"><i class="f7-icons icon">pencil</i></a>
+                    ${question.state == 0 && $h`
+                      <a href="#" @click="${() => deleteQuestion(question.id)}"><i class="f7-icons icon color-red">trash_fill</i></a>
+                    `}
+                    ${question.state != 0 && $h`
+                      <i class="f7-icons icon color-gray">trash_fill</i>
+                    `}
+                    ${i > 0 && questionsMoveable && $h`
+                      <a href="#" @click="${() => moveQuestionUp(question.id)}"><i class="f7-icons icon">chevron_up</i></a>
+                    `}
+                    ${(i <= 0 || !questionsMoveable) && $h`
+                      <i class="f7-icons icon color-gray">chevron_up</i>
+                    `}
+                    ${i < (questions.length - 1) && questionsMoveable && $h`
+                      <a href="#" @click="${() => moveQuestionDown(question.id)}"><i class="f7-icons icon">chevron_down</i></a>
+                    `}
+                    ${(i >= (questions.length - 1) || !questionsMoveable) && $h`
+                      <i class="f7-icons icon color-gray">chevron_down</i>
+                    `}
+                  </td>
+                </tr>
+              `)}
+            </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${questions.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${prepare}">Antwort-Dummys für ausgewählte Fragen verschicken</button>
+        </div>
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${dispatch}">Ausgewählte Fragen stellen</button>
+        </div>
+        <div class="row dash-buttons-row">
+          <button class="col button button-fill" @click="${grade}">Ausgewählte Fragen zur Auswertung freigeben</button>
+        </div>
+        <div class="row">
+          <button class="col button button-fill" @click="${publish}">Ergebnisse der ausgewählten Fragen veröffentlichen</button>
+        </div>
+      </div>
+    </div>
+    <div class="popup popup-push popup-new-question">
+      <div class="view view-init">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner sliding">
+              <div class="left">
+                <a href="#" class="link popup-close">
+                  <i class="icon f7-icons">xmark</i>
+                </a>
+              </div>
+              <div class="title">Frage bearbeiten</div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="page-content">
+            <form id="new-question-form">
+              <div class="list">
+                <ul>
+                  <li>
+                    <div class="item-content item-input">
+                      <div class="item-inner">
+                        <div class="item-title item-label">Frage</div>
+                        <div class="item-input-wrap">
+                          <input type="text" name="question" placeholder="Wie wird das Wetter morgen?" />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="item-content item-input">
+                      <div class="item-inner">
+                        <div class="item-title item-label">Hinweis für Auswertung</div>
+                        <div class="item-input-wrap">
+                          <input type="text" name="hint" placeholder="Die Antwort muss '1984' beinhalten." />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="item-content">
+                      <div class="item-inner">
+                        <div class="item-title">Maximale Punktzahl</div>
+                        <div class="item-after">
+                          <div class="stepper stepper-init">
+                            <div class="stepper-button-minus"></div>
+                            <div class="stepper-input-wrap">
+                              <input type="text" name="maxPoints" value="1" min="0.5" max="10" step="0.5" readonly />
+                            </div>
+                            <div class="stepper-button-plus"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="block-title">Typ</div>
+              <div class="list">
+                <ul>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="text" checked @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Textantwort</div>
+                      </div>
+                    </label>
+                  </li>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="multipleChoice" @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Multiple Choice</div>
+                      </div>
+                    </label>
+                  </li>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="trueFalse" @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Wahr / Falsch</div>
+                      </div>
+                    </label>
+                  </li>
+                </ul>
+              </div>
+              ${questionInEdit.type == "multipleChoice" && $h`
+                <div class="block-title">Antwortmöglichkeiten (bitte die korrekte Antwort markieren)</div>
+                <div class="list">
+                  <ul>
+                    ${questionInEdit.options.map((option, i) => $h`
+                      <li>
+                        <label class="item-radio item-radio-icon-start item-content">
+                          <input type="radio" name="multipleChoiceAnswer" value="${i}" />
+                          <i class="icon icon-radio"></i>
+                          <div class="item-media"><span class="badge">${i + 1}</span></div>
+                          <div class="item-inner">
+                            <div class="item-title">${option}</div>
+                            <div class="item-after">
+                              <a href="#" @click="${() => removeMultipleChoiceOption(i)}">
+                                <span class="badge color-red">x</span>
+                              </a>
+                            </div>
+                          </div>
+                        </label>
+                      </li>
+                    `)}
+                  </ul>
+                </div>
+                <div class="list">
+                  <ul>
+                    <li>
+                      <div class="item-content item-input">
+                        <div class="item-inner">
+                          <div class="item-title item-label">Neue Antwortmöglichkeit</div>
+                          <div class="item-input-wrap">
+                            <input type="text" name="newMultipleChoice" placeholder="27.06.2011" />
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="block row">
+                  <button class="col button" id="add-button" @click="${addMultipleChoiceOption}"><span>Option hinzufügen</span></button>
+                </div>
+              `}
+              ${questionInEdit.type == "trueFalse" && $h`
+                <div class="block-title">Bitte die korrekte Antwort markieren</div>
+                <div class="list">
+                  <ul>
+                    <li>
+                      <label class="item-radio item-radio-icon-start item-content">
+                        <input type="radio" name="trueFalse" value="true" checked />
+                        <i class="icon icon-radio"></i>
+                        <div class="item-inner">
+                          <div class="item-title">Wahr</div>
+                        </div>
+                      </label>
+                    </li>
+                    <li>
+                      <label class="item-radio item-radio-icon-start item-content">
+                        <input type="radio" name="trueFalse" value="false" />
+                        <i class="icon icon-radio"></i>
+                        <div class="item-inner">
+                          <div class="item-title">Falsch</div>
+                        </div>
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+              `}
+            </form>
+            ${questionInEdit.state == 0 && $h`
+              <div class="block row">
+                <button class="col button button-fill" @click="${saveQuestion}"><span>Frage speichern</span></button>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+import questionState from  '../js/questionState.js';
+import questionType from '../js/questionType.js';
+export default (props, {$f7, $on, $update}) => {
+  let questions = [];
+  let interval = null;
+  let questionsMoveable = false;
+
+  let questionInEdit = {
+    question: "",
+    hint: "",
+    type: "text",
+    options: [],
+    trueFalse: "true",
+    state: 0,
+  };
+
+  const addQuestion = () => {
+    questionInEdit = {
+      question: "",
+      hint: "",
+      type: "text",
+      options: [],
+      trueFalse: "true",
+      state: 0,
+    };
+    $f7.form.fillFromData('#new-question-form', questionInEdit);
+    $f7.popup.open(".popup-new-question");
+    $update();
+  }
+
+  const editQuestion = (id) => {
+    for (const question of questions) {
+      if (question.id == id) {
+        questionInEdit = question;
+      }
+    }
+    $f7.preloader.show();
+    api.send("/api/question/" + id, "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      $f7.preloader.hide();
+      switch(questionInEdit.type) {
+        case 0:
+          questionInEdit.type = "text";
+          break;
+        case 1:
+          questionInEdit.type = "multipleChoice";
+          questionInEdit.multipleChoiceAnswer = result.correctAnswer.toString();
+          break;
+        case 2:
+          questionInEdit.type = "trueFalse";
+          switch(result.correctAnswer) {
+            case 0:
+              questionInEdit.trueFalse = "false";
+              break;
+            case 1:
+              questionInEdit.trueFalse = "true";
+              break;
+          }
+          break;
+      }
+      questionInEdit.options = JSON.parse(result.options);
+      questionInEdit.hint = result.gradingHint;
+      questionInEdit.correctAnswer = result.correctAnswer;
+      questionInEdit.maxPoints = result.maxPoints;
+      questionInEdit.state = result.state;
+      $f7.popup.open(".popup-new-question");
+      $update(() => {
+        $f7.form.fillFromData('#new-question-form', questionInEdit);
+        document.getElementById("add-button").addEventListener("click", (event) => {
+          event.preventDefault();
+        });
+      });
+    });
+  }
+
+  const addMultipleChoiceOption = () => {
+    let data = $f7.form.convertToData('#new-question-form');
+    if (!Array.isArray(questionInEdit.options)) {
+      questionInEdit.options = [];
+    }
+    if (data.newMultipleChoice == "") {
+      $f7.dialog.alert("Die Antwortoption darf nicht leer sein.");
+      return;
+    }
+    questionInEdit.question = data.question;
+    questionInEdit.hint = data.hint;
+    questionInEdit.options.push(data.newMultipleChoice);
+    questionInEdit.newMultipleChoice = "";
+    $update(() => {
+      $f7.form.fillFromData('#new-question-form', questionInEdit);
+    });
+  }
+
+  const removeMultipleChoiceOption = (id) => {
+    questionInEdit.options.splice(id, 1);
+    $update();
+  }
+
+  const deleteQuestion = (id) => {
+    let dialog = $f7.dialog.create({
+      title: "Frage wirklich löschen?",
+      text: "Die Frage wird für immer verloren sein (eine lange Zeit!)",
+      buttons: [
+        {
+          text: "Abbrechen",
+          close: true
+        },
+        {
+          text: "Löschen",
+          color: "red",
+          onClick: () => {
+            $f7.preloader.show();
+            api.send("/api/question/" + id, "DELETE", {}).then((result) => {
+              $f7.preloader.hide();
+              dialog.close();
+              loadData();
+            });
+          }
+        }
+      ]
+    }).open();
+  }
+
+  const moveQuestionUp = (id) => {
+    $f7.preloader.show();
+    api.send("/api/question/" + id + "/up", "POST", {}).then((result) => {
+      $f7.preloader.hide();
+      if (result == "SUCCESS") {
+        loadData();
+      }
+    });
+  }
+
+  const moveQuestionDown = (id) => {
+    $f7.preloader.show();
+    api.send("/api/question/" + id + "/down", "POST", {}).then((result) => {
+      $f7.preloader.hide();
+      if (result == "SUCCESS") {
+        loadData();
+      }
+    });
+  }
+
+  const saveQuestion = () => {
+    let data = $f7.form.convertToData('#new-question-form');
+    if (data.question == "") {
+      $f7.dialog.alert("Der Titel der Frage darf nicht leer sein.");
+      return;
+    }
+    if (data.type == "multipleChoice" && questionInEdit.options.length < 2) {
+      $f7.dialog.alert("Eine Multiple Choice Frage muss mindestens zwei Antwortmöglichkeiten haben.");
+      return;
+    }
+    if (data.type == "multipleChoice" && isNaN(parseInt(data.multipleChoiceAnswer))) {
+      $f7.dialog.alert("Bitte wähle die korrekte Antwortmöglichkeit aus.");
+      return;
+    }
+    let q = {
+      title: data.question,
+      hint: data.hint,
+      type: data.type,
+      maxPoints: data.maxPoints,
+    }
+    if (data.type == "multipleChoice") {
+      q["options"] = JSON.stringify(questionInEdit.options);
+      q["correctAnswer"] = parseInt(data.multipleChoiceAnswer);
+    } else if (data.type == "trueFalse") {
+      q["correctAnswer"] = data.trueFalse == "true" ? 1 : 0;
+    }
+    $f7.preloader.show();
+    if (questionInEdit.id == null) {
+      api.send("/api/question", "PUT", q).then((result) => {
+        $f7.preloader.hide();
+        if (result == "SUCCESS") {
+          $f7.dialog.alert("Frage erfolgreich gespeichert.");
+          $f7.popup.close();
+          loadData();
+        }
+      });
+    } else {
+      api.send("/api/question/" + questionInEdit.id, "POST", q).then((result) => {
+        $f7.preloader.hide();
+        if (result == "SUCCESS") {
+          $f7.dialog.alert("Frage erfolgreich gespeichert.");
+          $f7.popup.close();
+          loadData();
+        }
+      });
+    }
+  }
+
+  const updateQuestionMode = () => {
+    let data = $f7.form.convertToData('#new-question-form');
+    questionInEdit.type = data.type;
+    $update(() => {
+      if (document.getElementById("add-button") != null) {
+        document.getElementById("add-button").addEventListener("click", (event) => {
+          event.preventDefault();
+        });
+      }
+    });
+  }
+
+  const loadData = () => {
+    $f7.preloader.show();
+    api.send("/api/question", "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      $f7.preloader.hide();
+      questions = result;
+      questionsMoveable = true;
+      for (const question of questions) {
+        if (question.state > 0) {
+          questionsMoveable = false;
+          break;
+        }
+      }
+      $update();
+    });
+  }
+
+  const getSelectedIds = () => {
+    let ids = [];
+    for (const question of questions) {
+      if (document.getElementById("select-" + question.id).checked) {
+        ids.push(question.id);
+      }
+    }
+    if (ids.length <= 0) {
+      $f7.dialog.alert("Bitte mindestens eine Frage auswählen.");
+      return null;
+    }
+    return ids;
+  }
+
+  const prepare = () => {
+    let prepareIds = getSelectedIds();
+    if (prepareIds == null) {
+      return;
+    }
+    api.send("/api/question/prepare", "POST", {ids: JSON.stringify(prepareIds)}).then((result) => {
+      if (result == "SUCCESS") {
+        $f7.dialog.alert("Fragen-Dummys erfolgreich verschickt.");
+      } else {
+        $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
+      }
+      loadData();
+    })
+  }
+
+  const dispatch = () => {
+    let dispatchIds = getSelectedIds();
+    if (dispatchIds == null) {
+      return;
+    }
+    $f7.dialog.prompt("Wie viele Minuten Antwortzeit soll gewährt werden? Bitte ganze Zahlen eingeben, Abfrage nach Sekunden folgt.", (minutes) => {
+      if (/^\+?(0|[1-9]\d*)$/.test(minutes)) {
+        $f7.dialog.prompt("Wie viele Sekunden Antwortzeit soll gewährt werden? Bitte ganze Zahlen eingeben", (seconds) => {
+          if (/^\+?(0|[1-9]\d*)$/.test(seconds)) {
+            let request = {
+              ids: JSON.stringify(dispatchIds),
+              time: parseInt(minutes) * 60 + parseInt(seconds),
+            }
+            api.send("/api/question/dispatch", "POST", request).then((result) => {
+              if (result == "SUCCESS") {
+                $f7.dialog.alert("Fragen erfolgreich gestellt.");
+              } else {
+                $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte die Situation in Discord prüfen.");
+              }
+              loadData();
+            });
+          } else {
+            $f7.dialog.alert("Bitte eine positive ganze Zahl eingeben.");
+          }
+        });
+      } else {
+        $f7.dialog.alert("Bitte eine positive ganze Zahl eingeben.");
+      }
+    });
+  }
+
+  const grade = () => {
+    let gradeIds = getSelectedIds();
+    if (gradeIds == null) {
+      return;
+    }
+    api.send("/api/question/grade", "POST", {ids: JSON.stringify(gradeIds)}).then((result) => {
+      if (result == "SUCCESS") {
+        $f7.dialog.alert("Fragen erfolgreich zur Auswertung freigegeben.");
+      } else {
+        $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
+      }
+      loadData();
+    })
+  }
+
+  const publish = () => {
+    let publishIds = getSelectedIds();
+    if (publishIds == null) {
+      return;
+    }
+    api.send("/api/question/publish", "POST", {ids: JSON.stringify(publishIds)}).then((result) => {
+      if (result == "SUCCESS") {
+        $f7.dialog.alert("Fragen erfolgreich veröffentlicht.");
+      } else {
+        $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
+      }
+      loadData();
+    })
+  }
+
+  $on("pageInit", () => {
+    loadData();
+    interval = setInterval(() => {
+      loadData();
+    }, 5000);
+  })
+
+  $on("pageBeforeOut", () => {
+    clearInterval(interval);
+  })
+
+  return $render;
+};
+</script>

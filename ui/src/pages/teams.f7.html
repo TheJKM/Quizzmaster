@@ -1,0 +1,95 @@
+<template>
+  <div class="page" data-name="teams">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Zurück</span>
+          </a>
+        </div>
+        <div class="title">Quizzmaster Teams</div>
+        <div class="right"></div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Teams</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">Registrierte Teams</div>
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Teamname</th>
+            <th class="label-cell">Anzahl Mitglieder</th>
+            <th class="label-cell">Team ID</th>
+            <th class="label-cell">Team Captain E-Mail</th>
+            ${teamInformation.map((ti) => $h`
+              <th class="label-cell">${ti}</th>
+            `)}
+          </thead>
+          <tbody>
+            ${teams.map((team) => $h`
+              <tr>
+                <td class="label-cell">${team.name}</td>
+                <td class="label-cell">${team.memberCount}</td>
+                <td class="label-cell">${team.displayId}</td>
+                <td class="label-cell">${team.captainEmail}</td>
+                ${team.information.map((info) => $h`
+                  <td class="label-cell">${info}</td>
+                `)}
+              </tr>
+            `)}
+          </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${teams.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let teams = [];
+  let teamInformation = [];
+
+  const loadData = () => {
+    $f7.preloader.show();
+    api.send("/api/team", "GET", {}).then((result) => {
+      result = JSON.parse(result);
+      $f7.preloader.hide();
+      teams = result.teams;
+      teamInformation = result.teamInformation;
+      $update();
+    });
+  }
+
+  $on("pageInit", () => {
+    loadData();
+  })
+
+  return $render;
+};
+</script>

@@ -1,0 +1,10 @@
+[Unit]
+Description=Quizzmaster API
+After=network.target
+
+[Service]
+ExecStart=uwsgi --ini quizzmaster.ini
+WorkingDirectory=/root/quizzmaster/api
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,140 @@
+<template>
+  <div class="page" data-name="scoreboard">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left"></div>
+        <div class="title">Quizzmaster Scoreboard</div>
+        <div class="right">
+          <p class="rightspace">LIVE</p><div class="gauge gauge-live"></div>
+        </div>
+        <div class="title-large">
+          <div class="title-large-text">Quizzmaster Scoreboard</div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="block-title">${title}</div>
+      <div class="data-table card">
+        <table>
+          <thead>
+            <th class="label-cell">Platzierung</th>
+            <th class="label-cell">Team</th>
+            <th class="label-cell">Punkte</th>
+          </thead>
+          <tbody>
+            ${data.teams.map((team) => $h`
+              <tr>
+                <td class="label-cell">${team.place}</td>
+                <td class="label-cell">${team.name}</td>
+                <td class="label-cell">${team.points}</td>
+              </tr>
+            `)}
+          </tbody>
+        </table>
+        <div class="data-table-footer">
+          <div class="data-table-rows-select">
+            Pro Seite:
+            <div class="input input-dropdown">
+              <select>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="data-table-pagination">
+            <span class="data-table-pagination-label">Gesamt: ${data.teams.length}</span>
+            <a href="#" class="link disabled">
+              <i class="icon icon-prev color-gray"></i>
+            </a>
+            <a href="#" class="link">
+              <i class="icon icon-next color-gray"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../js/api.js';
+export default (props, {$f7, $on, $update}) => {
+  let data = {teams: [], questions: []};
+  let title = "Noch keine Fragen freigegeben.";
+  let gauge = null;
+  let counter = 0;
+  let interval = null;
+
+  const loadData = () => {
+    $f7.preloader.show();
+    api.send("/api/scoreboard", "GET", {}).then((result) => {
+      data = JSON.parse(result);
+      let previous = 0;
+      let isRange = false;
+      for (const id of data.questions) {
+        if (previous == 0) {
+          title = "Freigegebene Fragen: " + id;
+          previous = id;
+        } else if (previous == (id - 1)) {
+          isRange = true;
+          previous = id;
+        } else {
+          if (isRange) {
+            isRange = false;
+            title += " - " + previous + ", " + id;
+          } else {
+            title += ", " + id
+          }
+          previous = id;
+        }
+      }
+      if (isRange) {
+        title += " - " + previous;
+      }
+      let place = 1;
+      let actualPoints = 0;
+      let counter = 1;
+      for (const team of data.teams) {
+        if (team.points != actualPoints && actualPoints != 0) {
+          place = counter;
+        }
+        team.place = team.points == 0 ? "-" : place;
+        actualPoints = team.points;
+        counter++;
+      }
+      $f7.preloader.hide();
+      $update();
+    })
+  }
+
+  $on("pageInit", () => {
+    loadData();
+    interval = setInterval(() => {
+      if (counter == 60) {
+        loadData();
+        counter = 0;
+      }
+      gauge.update({
+        value: (60 - counter) / 60,
+      });
+      counter++;
+    }, 1000);
+    gauge = $f7.gauge.create({
+      el: ".gauge-live",
+      type: "semicircle",
+      value: 1,
+      size: 60,
+      borderColor: '#2196f3',
+      borderWidth: 10,
+    });
+  })
+
+  $on("pageBeforeOut", () => {
+    clearInterval(interval);
+  })
+
+  return $render;
+};
+</script>
