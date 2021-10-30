@@ -114,12 +114,12 @@
                   <p>${signupConsent}</p>
                   <div class="list simple-list">
                     <ul>
-                      <li>
-                        <label class="toggle toggle-init">
-                          <input type="checkbox" name="consent" />
-                          <span class="toggle-icon"></span>
+                      <li style="justify-content: left;">
+                        <label class="toggle toggle-init consent-target">
+                          <input type="checkbox" name="consent" class="consent-target" />
+                          <span class="toggle-icon consent-target"></span>
                         </label>
-                        <span>Ich habe die Datenschutzhinweise gelesen und stimme zu.</span>
+                        <span style="margin-left: 10px;">Ich habe die Datenschutzhinweise gelesen und stimme zu.</span>
                       </li>
                     </ul>
                   </div>
@@ -221,7 +221,10 @@ export default (props, {$f7, $on, $update}) => {
         },
       });
       document.getElementById("newTeamForm").addEventListener("click", (event) => {
-        event.preventDefault();
+        let allowed = Array.from(document.getElementsByClassName("consent-target"));
+        if (!allowed.includes(event.target)) {
+          event.preventDefault();
+        }
       });
     });
   }
@@ -312,8 +315,7 @@ export default (props, {$f7, $on, $update}) => {
 
   const consentNext = () => {
     let data = $f7.form.convertToData('#newTeamForm');
-    console.log(data);
-    if (typeof data.consent !== "undefined") {
+    if (data.consent.includes("on")) {
       next();
     } else {
       $f7.dialog.alert("Bitte stimme den Datenschutzhinweisen zu.", "Es fehlt etwas...");
