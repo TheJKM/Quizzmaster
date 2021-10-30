@@ -35,6 +35,7 @@ class Question(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     displayId = Column(Integer)
     title = Column(Text)
+    category = Column(Text)
     type = Column(Enum(questionType))
     state = Column(Enum(questionState))
     options = Column(Text)
@@ -42,10 +43,12 @@ class Question(Base):
     correctAnswer = Column(Integer)
     maxPoints = Column(Float)
     latestAnswerTime = Column(DateTime)
+    customGradingFunction = Column(Text)
 
     # Create object
-    def __init__(self, title, type, displayId, maxPoints):
+    def __init__(self, title, category, type, displayId, maxPoints):
         self.title = title
+        self.category = category
         self.type = type
         self.state = questionState.prePreparation
         self.options = json.dumps([])

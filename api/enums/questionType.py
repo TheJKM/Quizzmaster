@@ -27,3 +27,5 @@ class questionType(Enum):
     text = 0
     multipleChoice = 1
     trueFalse = 2
+    custom = 3
+    external = 4

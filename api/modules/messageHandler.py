@@ -102,7 +102,7 @@ async def asyncHandleMessage(message, bot):
         for team in teams:
             textChannel = guild.get_channel(int(team.textChannelId))
             for question in message["questions"]:
-                sentMessage = await textChannel.send("Dummy für Frage " + str(question["displayId"]) + ".")
+                sentMessage = await textChannel.send("Dummy für \"" + str(question["category"]) + "\" (" + str(question["displayId"]) + ").")
                 answer = Answer(question["questionId"], team.id, sentMessage.id)
                 dbSession.add(answer)
                 if "multipleChoice" in question:

@@ -69,6 +69,7 @@ def applyForGrading():
                 "id": answer.id,
                 "value": answer.value,
                 "question": question.title,
+                "category": question.category,
                 "hint": question.gradingHint,
                 "maxPoints": question.maxPoints
             }

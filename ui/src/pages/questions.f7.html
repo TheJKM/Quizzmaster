@@ -28,6 +28,7 @@
             <th class="label-cell">Auswahl</th>
             <th class="label-cell">Nr.</th>
             <th class="label-cell">Typ</th>
+            <th class="label-cell">Titel</th>
             <th class="label-cell">Frage</th>
             <th class="label-cell">Status</th>
             <th class="label-cell">Aktion</th>
@@ -43,6 +44,7 @@
                   </td>
                   <td class="label-cell">${question.displayId}</td>
                   <td class="label-cell">${questionType.getString(question.type)}</td>
+                  <td class="label-cell">${question.category}</td>
                   <td class="label-cell">${question.question}</td>
                   <td class="label-cell">${questionState.getString(question.state)}</td>
                   <td class="label-cell">
@@ -127,6 +129,23 @@
             <form id="new-question-form">
               <div class="list">
                 <ul>
+                  <li>
+                    <div class="item-content item-input">
+                      <div class="item-inner">
+                        <div class="item-title item-label">Titel</div>
+                        <div class="item-input-wrap">
+                          <input type="text" name="category" placeholder="Wetter und Klima" />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="item-content">
+                      <div class="item-inner">
+                        <div class="item-title"><i class="icon f7-icons" style="margin-right: 10px;">exclamationmark_triangle_fill</i>Der Titel wird bereits vor Freigabe der Frage angezeigt!</div>
+                      </div>
+                    </div>
+                  </li>
                   <li>
                     <div class="item-content item-input">
                       <div class="item-inner">
@@ -286,6 +305,7 @@ export default (props, {$f7, $on, $update}) => {
 
   let questionInEdit = {
     question: "",
+    category: "",
     hint: "",
     type: "text",
     options: [],
@@ -296,6 +316,7 @@ export default (props, {$f7, $on, $update}) => {
   const addQuestion = () => {
     questionInEdit = {
       question: "",
+      category: "",
       hint: "",
       type: "text",
       options: [],
@@ -345,9 +366,6 @@ export default (props, {$f7, $on, $update}) => {
       $f7.popup.open(".popup-new-question");
       $update(() => {
         $f7.form.fillFromData('#new-question-form', questionInEdit);
-        document.getElementById("add-button").addEventListener("click", (event) => {
-          event.preventDefault();
-        });
       });
     });
   }
@@ -436,6 +454,7 @@ export default (props, {$f7, $on, $update}) => {
     }
     let q = {
       title: data.question,
+      category: data.category,
       hint: data.hint,
       type: data.type,
       maxPoints: data.maxPoints,

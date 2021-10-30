@@ -97,6 +97,7 @@ def privateScoreboard():
             "state": question.state.value,
             "id": question.id,
             "question": question.title,
+            "category": question.category,
             "hint": question.gradingHint,
             "maxPoints": question.maxPoints,
             "type": question.type.value,

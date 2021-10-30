@@ -9,7 +9,6 @@ var config = require('config');
 
 let api = {
   send: function(url, type, data) {
-    console.log(baseDomain);
     url = config.development ? baseDomain + url : url;
     return new Promise(function(resolve, reject) {
       let request = new XMLHttpRequest;

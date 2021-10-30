@@ -56,6 +56,7 @@ def getQuestions():
                 "id": q.id,
                 "displayId": q.displayId,
                 "question": q.title,
+                "category": q.category,
                 "type": q.type.value,
                 "state": q.state.value
             })
@@ -74,7 +75,7 @@ def getQuestions():
         else:
             newId = questions[-1].displayId + 1
         maxPoints = float(request.form.get("maxPoints"))
-        question = Question(request.form.get("title"), type, newId, maxPoints)
+        question = Question(request.form.get("title"), request.form.get("category"), type, newId, maxPoints)
         question.gradingHint = request.form.get("hint")
         if request.form.get("type") == "multipleChoice":
             question.options = request.form.get("options")
@@ -116,6 +117,7 @@ def getQuestion(id):
             dbSession.close()
             return "ERR_NOT_FOUND", 404
         question.title = request.form.get("title")
+        question.category = request.form.get("category")
         if request.form.get("type") == "multipleChoice":
             type = questionType.multipleChoice
         elif request.form.get("type") == "trueFalse":
@@ -216,6 +218,7 @@ def prepareQuestions():
                 question.state = questionState.inPreparation
                 currentPrepareQuestion["displayId"] = question.displayId
                 currentPrepareQuestion["questionId"] = question.id
+                currentPrepareQuestion["category"] = question.category
                 if question.type == questionType.multipleChoice:
                     currentPrepareQuestion["multipleChoice"] = len(json.loads(question.options))
                 elif question.type == questionType.trueFalse:
