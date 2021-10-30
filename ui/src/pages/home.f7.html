@@ -111,6 +111,26 @@
               </div>
               <div class="swiper-slide">
                 <div class="block block-strong">
+                  <p>${signupConsent}</p>
+                  <div class="list simple-list">
+                    <ul>
+                      <li>
+                        <label class="toggle toggle-init">
+                          <input type="checkbox" name="consent" />
+                          <span class="toggle-icon"></span>
+                        </label>
+                        <span>Ich habe die Datenschutzhinweise gelesen und stimme zu.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="row">
+                    <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
+                    <button class="col button button-fill" @click="${consentNext}"><span>Weiter </span><i class="icon f7-icons">arrow_right</i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="block block-strong">
                   <p>Im nächsten Schritt meldest du dich mit deinem Discord-Account an. So können wir dich direkt unserem Discord-Server hinzufügen und die korrekten Rollen vergeben. Du wirst dazu auf die Discord-Webseite weitergeleitet, und gelangst anschließend wieder zurück auf diese Seite. Keine Angst, wir werden dich ausschließlich zu unserem Pubquiz-Server hinzufügen, und deine ID verwenden, um deine Antworten deinem Team zuzuordnen. Sämtliche Daten werden spätestens 7 Tage nach dem Event gelöscht.</p>
                   <div class="row">
                     <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
@@ -148,6 +168,7 @@
       `}
       ${showJoinFinalizeView && $h`
         <div class="block block-strong">
+          <p>${signupConsent}</p>
           <p>Im nächsten Schritt meldest du dich mit deinem Discord-Account an. So können wir dich direkt unserem Discord-Server hinzufügen und die korrekten Rollen vergeben. Du wirst dazu auf die Discord-Webseite weitergeleitet, und gelangst anschließend wieder zurück auf diese Seite. Keine Angst, wir werden dich ausschließlich zu unserem Pubquiz-Server hinzufügen, und deine ID verwenden, um deine Antworten deinem Team zuzuordnen. Sämtliche Daten werden spätestens 7 Tage nach dem Event gelöscht.</p>
           <div class="row">
             <button class="col button button-fill" @click="${discord}"><span>Weiter zu Discord </span><i class="icon f7-icons">arrow_right</i></button>
@@ -164,6 +185,7 @@ var config = require('config');
 export default (props, {$f7, $on, $update}) => {
   let questions = [];
   let eventName = "";
+  let signupConsent = "";
   let teamId = "";
 
   let showStartSelection = true;
@@ -288,6 +310,16 @@ export default (props, {$f7, $on, $update}) => {
     }
   }
 
+  const consentNext = () => {
+    let data = $f7.form.convertToData('#newTeamForm');
+    console.log(data);
+    if (typeof data.consent !== "undefined") {
+      next();
+    } else {
+      $f7.dialog.alert("Bitte stimme den Datenschutzhinweisen zu.", "Es fehlt etwas...");
+    }
+  }
+
   const validateEmail = (input) => {
     if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input)) {
       return true;
@@ -340,6 +372,7 @@ export default (props, {$f7, $on, $update}) => {
         $f7.preloader.hide();
         questions = result.questions;
         eventName = result.eventName;
+        signupConsent = result.consentText;
         $update();
       });
       api.send("/api/teamregistration", "GET", {}).then((result) => {

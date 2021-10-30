@@ -49,6 +49,7 @@ def guildJoinQuestions():
     return jsonify({
         "questions": config.CONFIG_REGISTER_QUESTIONS,
         "eventName": config.CONFIG_EVENT_NAME,
+        "consentText": config.CONFIG_SIGNUP_CONSENT,
     })
 
 
