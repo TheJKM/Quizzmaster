@@ -95,6 +95,8 @@ CONFIG_TIMEOUT_MESSAGE = "⏰ Die Antwortzeit ist abgelaufen, es werden keine An
 CONFIG_TIMEOUT_ANSWER_MESSAGE = "⏰ Die Antwortzeit für diese Frage ist abgelaufen, deine Antwort wurde nicht gezählt."
 CONFIG_TOO_EARLY_MESSAGE = "Diese Frage wurde noch nicht gestellt. Bitte antworte erneut, sobald die Frage gestellt wurde. Deine Antwort wurde nicht gezählt."
 CONFIG_TEXT_FOR_MC_TF = "Dies ist eine Multiple-Choice- oder Wahr-Falsch-Frage, die mittels Klick auf ein Emoji beantwortet wird. Deine Textantwort wurde nicht gezählt."
+CONFIG_COMMAND_OUTSIDE_TEAM_CHANNEL_MESSAGE = "Dieser Befehl funktioniert nur in deinem Team-Channel."
+CONFIG_COMMAND_SCORE_MESSAGE = "Dein Team hat bisher {points} Punkte erreicht. Dabei sind nur bereits vollständig ausgewertete Fragen berücksichtigt."
 
 # Signup consent text
 CONFIG_SIGNUP_CONSENT = "Hinweise zum Datenschutz: Das Pubquiz findet auf Discord statt. Auf dem Discord-Server existieren Textkanäle, die für alle Teilnehmer*innen zugänglich sind. Ich stimme zu, dass sämtliche Inhalte (einschließlich Bilder, Videos sowie andere Dateien), die ich außerhalb meines Team-Kanals poste, im Rahmen des Pubquiz uneingeschränkt verwendet werden können. Insbesondere kann Bild- und Videomaterial im Livestream gezeigt werden. Ich garantiere, dass ich die Zustimmung zur Verwendung von allen auf Bild- und Videomaterial zu sehenden Personen erhalten habe."

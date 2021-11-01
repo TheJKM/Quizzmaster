@@ -23,7 +23,6 @@
 # Include dependencies
 import discord
 from discord.ext import commands
-import sys
 
 
 # Include modules
@@ -32,6 +31,7 @@ from modules.listenerThread import listenerThread
 from modules.expirationCheckThread import expirationCheckThread
 from modules.eventEvaluator import evaluateTextAnswer, evaluateReactionAnswer
 from modules.databaseInit import initDatabase
+from modules.botCommands import answerTeamAnswers, answerCurrentScore
 
 
 # Import data models to enable scheme creation
@@ -65,7 +65,11 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.reference is not None and not message.author.id == bot.user.id:
-        await evaluateTextAnswer(message);
+        await evaluateTextAnswer(message)
+    elif "$antworten" in message.content:
+        await answerTeamAnswers(message)
+    elif "$punkte" in message.content:
+        await answerCurrentScore(message)
 
 
 @bot.event
