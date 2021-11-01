@@ -36,6 +36,7 @@ from modules.automaticGrading import autoGrade
 from enums.questionType import questionType
 from enums.questionState import questionState
 from helpers.fixQuestionIds import fixQuestionIds
+from customGrading.manager import CustomGradingManager
 
 
 # Endpoint definition
@@ -343,3 +344,9 @@ def publishQuestions():
         return "ERR_DATABASE", 500
     dbSession.close()
     return "SUCCESS", 200
+
+
+@questionApi.route("/api/question/customgraders", methods=["GET"])
+@login_required
+def getCustomGraders():
+    return jsonify(CustomGradingManager.availableGraders()), 200
