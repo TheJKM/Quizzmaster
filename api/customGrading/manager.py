@@ -34,3 +34,8 @@ class CustomGradingManager():
     @staticmethod
     def getGraderClass(id):
         return CustomGradingManager.availableGraders[id]
+
+
+    @staticmethod
+    def getGradingFunctionByName(name):
+        pass

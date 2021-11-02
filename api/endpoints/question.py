@@ -68,6 +68,10 @@ def getQuestions():
             type = questionType.multipleChoice
         elif request.form.get("type") == "trueFalse":
             type = questionType.trueFalse
+        elif request.form.get("type") == "customAutomatic":
+            type = questionType.custom
+        elif request.form.get("type") == "customManual":
+            type = questionType.external
         else:
             type = questionType.text
         questions = dbSession.query(Question).order_by(Question.displayId).all()
@@ -83,6 +87,8 @@ def getQuestions():
             question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
+        elif request.form.get("type") == "customAutomatic":
+            question.customGradingFunction = request.form.get("customFunction")
         dbSession.add(question)
         try:
             dbSession.commit()
@@ -123,6 +129,10 @@ def getQuestion(id):
             type = questionType.multipleChoice
         elif request.form.get("type") == "trueFalse":
             type = questionType.trueFalse
+        elif request.form.get("type") == "customAutomatic":
+            type = questionType.custom
+        elif request.form.get("type") == "customManual":
+            type = questionType.external
         else:
             type = questionType.text
         question.type = type
@@ -133,6 +143,8 @@ def getQuestion(id):
             question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
+        elif request.form.get("type") == "customAutomatic":
+            question.customGradingFunction = request.form.get("customFunction")
         try:
             dbSession.commit()
         except exc.SQLAlchemyError:
@@ -350,3 +362,12 @@ def publishQuestions():
 @login_required
 def getCustomGraders():
     return jsonify(CustomGradingManager.availableGraders()), 200
+
+
+@questionApi.route("/api/question/<id>/csv", methods=["GET", "POST"])
+@login_required
+def externalGrading(id):
+    if request.method == "GET":
+        return "", 501
+    elif request.method == "POST":
+        return "", 501

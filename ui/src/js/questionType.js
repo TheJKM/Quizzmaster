@@ -7,6 +7,10 @@ let questionType = {
         return "Multiple Choice";
       case 2:
         return "Wahr / Falsch";
+      case 3:
+        return "Custom Automatisch";
+      case 4:
+        return "Custom Manuell";
     }
   }
 }

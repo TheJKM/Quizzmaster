@@ -58,14 +58,23 @@
                     ${i > 0 && questionsMoveable && $h`
                       <a href="#" @click="${() => moveQuestionUp(question.id)}"><i class="f7-icons icon">chevron_up</i></a>
                     `}
-                    ${(i <= 0 || !questionsMoveable) && $h`
+                    ${(i <= 0 || !questionsMoveable) && $h`
                       <i class="f7-icons icon color-gray">chevron_up</i>
                     `}
                     ${i < (questions.length - 1) && questionsMoveable && $h`
                       <a href="#" @click="${() => moveQuestionDown(question.id)}"><i class="f7-icons icon">chevron_down</i></a>
                     `}
-                    ${(i >= (questions.length - 1) || !questionsMoveable) && $h`
+                    ${(i >= (questions.length - 1) || !questionsMoveable) && $h`
                       <i class="f7-icons icon color-gray">chevron_down</i>
+                    `}
+                    ${question.state < 5 && $h`
+                      <i class="f7-icons icon color-gray">square_arrow_up_fill</i>
+                    `}
+                    ${question.state >= 5 && $h`
+                      <a href="#" @click="${() => loadCsv(question.id)}"><i class="f7-icons icon">square_arrow_up_fill</i></a>
+                    `}
+                    ${question.state == 5 && question.type == 3 && $h`
+                      <a href="#" @click="${() => supplyCsv(question.id)}"><i class="f7-icons icon">square_arrow_right_fill</i></a>
                     `}
                   </td>
                 </tr>
@@ -214,6 +223,24 @@
                       </div>
                     </label>
                   </li>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="customAutomatic" @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Custom Automatisch</div>
+                      </div>
+                    </label>
+                  </li>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="customManual" @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Custom Manuell</div>
+                      </div>
+                    </label>
+                  </li>
                 </ul>
               </div>
               ${questionInEdit.type == "multipleChoice" && $h`
@@ -282,6 +309,24 @@
                   </ul>
                 </div>
               `}
+              ${questionInEdit.type == "customAutomatic" && $h`
+                <div class="block-title">Bitte eine Auswertungsfunktion auswählen</div>
+                <div class="list">
+                  <ul>
+                    ${customGradingFunctions.map((functionName, i) => $h`
+                      <li>
+                        <label class="item-radio item-radio-icon-start item-content">
+                        <input type="radio" name="customGradingFunction" value="${functionName}" />
+                        <i class="icon icon-radio"></i>
+                        <div class="item-inner">
+                          <div class="item-title">${functionName}</div>
+                        </div>
+                      </label>
+                      </li>
+                    `)}
+                  </ul>
+                </div>
+              `}
             </form>
             ${questionInEdit.state == 0 && $h`
               <div class="block row">
@@ -302,6 +347,7 @@ export default (props, {$f7, $on, $update}) => {
   let questions = [];
   let interval = null;
   let questionsMoveable = false;
+  let customGradingFunctions = [];
 
   let questionInEdit = {
     question: "",
@@ -450,6 +496,10 @@ export default (props, {$f7, $on, $update}) => {
     }
     if (data.type == "multipleChoice" && isNaN(parseInt(data.multipleChoiceAnswer))) {
       $f7.dialog.alert("Bitte wähle die korrekte Antwortmöglichkeit aus.");
+      return;
+    }
+    if (data.type == "customAutomatic" && data.customGradingFunction.length <= 0) {
+      $f7.dialog.alert("Bitte wähle eine Auswertungsfunktion aus.");
       return;
     }
     let q = {
@@ -606,11 +656,22 @@ export default (props, {$f7, $on, $update}) => {
     })
   }
 
+  const loadCsv = (id) => {
+
+  }
+
+  const supplyCsv = (idcd ) => {
+
+  }
+
   $on("pageInit", () => {
     loadData();
     interval = setInterval(() => {
       loadData();
     }, 5000);
+    api.send("/api/question/customgraders", "GET", {}).then((result) => {
+      customGradingFunctions = JSON.parse(result);
+    })
   })
 
   $on("pageBeforeOut", () => {

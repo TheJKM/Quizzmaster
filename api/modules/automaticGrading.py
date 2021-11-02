@@ -29,6 +29,7 @@ from models.answer import Answer
 from modules.database import database
 from enums.questionState import questionState
 from enums.questionType import questionType
+from customGrading.manager import CustomGradingManager
 
 
 # Grading function
@@ -46,6 +47,28 @@ def autoGrade(ids):
                         answer.points = question.maxPoints
                     else:
                         answer.points = float(0)
+                question.state = questionState.waitForPublishing
+            elif question.type == questionType.custom:
+                answers = dbSession.query(Answer).filter(Answer.questionId == question.id).all()
+                gradingFunctionInput = []
+                for answer in answers:
+                    gradingData = {
+                        "id": answer.id,
+                        "value": answer.value,
+                        "points": 0.0,
+                    }
+                    gradingFunctionInput.append(gradingData)
+                customGrader = CustomGradingManager.getGradingFunctionByName(question.customGradingFunction)(gradingFunctionInput)
+                try:
+                    customGrader.executeGrading()
+                except:
+                    return False
+                gradingFunctionResult = customGrader.getResults()
+                for gradedAnswer in gradingFunctionResult:
+                    for answer in answers:
+                        if answer.id == gradedAnswer["id"]:
+                            answer.points = gradedAnswer["points"]
+                            break
                 question.state = questionState.waitForPublishing
     try:
         dbSession.commit()
