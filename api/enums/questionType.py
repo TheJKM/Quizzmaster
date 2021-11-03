@@ -29,3 +29,4 @@ class questionType(Enum):
     trueFalse = 2
     custom = 3
     external = 4
+    customMc = 5

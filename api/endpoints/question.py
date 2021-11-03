@@ -72,6 +72,8 @@ def getQuestions():
             type = questionType.custom
         elif request.form.get("type") == "customManual":
             type = questionType.external
+        elif request.form.get("type") == "customMc":
+            type = questionType.customMc
         else:
             type = questionType.text
         questions = dbSession.query(Question).order_by(Question.displayId).all()
@@ -82,12 +84,12 @@ def getQuestions():
         maxPoints = float(request.form.get("maxPoints"))
         question = Question(request.form.get("title"), request.form.get("category"), type, newId, maxPoints)
         question.gradingHint = request.form.get("hint")
-        if request.form.get("type") == "multipleChoice":
+        if request.form.get("type") == "multipleChoice" or request.form.get("type") == "customMc":
             question.options = request.form.get("options")
             question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
-        elif request.form.get("type") == "customAutomatic":
+        elif request.form.get("type") == "customAutomatic" or request.form.get("type") == "customMc":
             question.customGradingFunction = request.form.get("customFunction")
         dbSession.add(question)
         try:
@@ -133,17 +135,19 @@ def getQuestion(id):
             type = questionType.custom
         elif request.form.get("type") == "customManual":
             type = questionType.external
+        elif request.form.get("type") == "customMc":
+            type = questionType.customMc
         else:
             type = questionType.text
         question.type = type
         question.gradingHint = request.form.get("hint")
         question.maxPoints = float(request.form.get("maxPoints"))
-        if request.form.get("type") == "multipleChoice":
+        if request.form.get("type") == "multipleChoice" or request.form.get("type") == "customMc":
             question.options = request.form.get("options")
             question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
-        elif request.form.get("type") == "customAutomatic":
+        elif request.form.get("type") == "customAutomatic" or request.form.get("type") == "customMc":
             question.customGradingFunction = request.form.get("customFunction")
         try:
             dbSession.commit()

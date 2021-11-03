@@ -48,7 +48,7 @@ def autoGrade(ids):
                     else:
                         answer.points = float(0)
                 question.state = questionState.waitForPublishing
-            elif question.type == questionType.custom:
+            elif question.type == questionType.custom or question.type == questionType.customMc:
                 answers = dbSession.query(Answer).filter(Answer.questionId == question.id).all()
                 gradingFunctionInput = []
                 for answer in answers:

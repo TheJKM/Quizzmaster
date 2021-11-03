@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Management module for custom grading functions
+# Custom evaluation class for "What do most say?" type of questions.
 
 # Quizzmaster Discord bot for digital pub quizzes
 # Copyright (C) 2021 Johannes Kreutz.
@@ -19,35 +19,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-# Include evaluators
-from customGrading.whatDoMostSay import WhatDoMostSay
+# Include modules
+from customGrading.customGradingBase import CustomGradingBase
 
 
-class CustomGradingManager():
-    availableGraders = [
-        {
-            "mc": True,
-            "class": WhatDoMostSay,
-        }
-    ]
-
-
-    @staticmethod
-    def getAvailableGraders():
-        names = []
-        for g in CustomGradingManager.availableGraders:
-            names.append({
-                "name": g["class"].__name__,
-                "mc": g["mc"]
-            })
-        return names
-
-
-    @staticmethod
-    def getGraderClass(id):
-        return CustomGradingManager.availableGraders[id]["class"]
-
-
-    @staticmethod
-    def getGradingFunctionByName(name):
+# Class definition
+class WhatDoMostSay(CustomGradingBase):
+    @override
+    def executeGrading(self):
         pass

@@ -11,6 +11,8 @@ let questionType = {
         return "Custom Automatisch";
       case 4:
         return "Custom Manuell";
+      case 5:
+        return "Custom Automatisch MC";
     }
   }
 }

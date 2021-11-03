@@ -234,6 +234,15 @@
                   </li>
                   <li>
                     <label class="item-radio item-radio-icon-start item-content">
+                      <input type="radio" name="type" value="customMc" @input="${updateQuestionMode}" />
+                      <i class="icon icon-radio"></i>
+                      <div class="item-inner">
+                        <div class="item-title">Custom Automatisch MC</div>
+                      </div>
+                    </label>
+                  </li>
+                  <li>
+                    <label class="item-radio item-radio-icon-start item-content">
                       <input type="radio" name="type" value="customManual" @input="${updateQuestionMode}" />
                       <i class="icon icon-radio"></i>
                       <div class="item-inner">
@@ -243,7 +252,7 @@
                   </li>
                 </ul>
               </div>
-              ${questionInEdit.type == "multipleChoice" && $h`
+              ${questionInEdit.type == "multipleChoice" || questionInEdit.type == "customMc" && $h`
                 <div class="block-title">Antwortmöglichkeiten (bitte die korrekte Antwort markieren)</div>
                 <div class="list">
                   <ul>
@@ -309,17 +318,17 @@
                   </ul>
                 </div>
               `}
-              ${questionInEdit.type == "customAutomatic" && $h`
+              ${questionInEdit.type == "customAutomatic" || questionInEdit.type == "customMc" && $h`
                 <div class="block-title">Bitte eine Auswertungsfunktion auswählen</div>
                 <div class="list">
                   <ul>
                     ${customGradingFunctions.map((functionName, i) => $h`
                       <li>
                         <label class="item-radio item-radio-icon-start item-content">
-                        <input type="radio" name="customGradingFunction" value="${functionName}" />
+                        <input type="radio" name="customGradingFunction" value="${functionName.name}" />
                         <i class="icon icon-radio"></i>
                         <div class="item-inner">
-                          <div class="item-title">${functionName}</div>
+                          <div class="item-title">${functionName.name}</div>
                         </div>
                       </label>
                       </li>
@@ -403,7 +412,21 @@ export default (props, {$f7, $on, $update}) => {
               break;
           }
           break;
+        case 3:
+          questionInEdit.type = "customAutomatic";
+          questionInEdit.customGradingFunction = result.customGradingFunction;
+          break;
+        case 4:
+          questionInEdit.type = "customManual";
+          questionInEdit.customGradingFunction = result.customGradingFunction;
+          break;
+        case 5:
+          questionInEdit.type = "customMc";
+          questionInEdit.customGradingFunction = result.customGradingFunction;
+          questionInEdit.multipleChoiceAnswer = result.correctAnswer.toString();
+          break;
       }
+      questionInEdit.category = result.category;
       questionInEdit.options = JSON.parse(result.options);
       questionInEdit.hint = result.gradingHint;
       questionInEdit.correctAnswer = result.correctAnswer;
@@ -498,7 +521,7 @@ export default (props, {$f7, $on, $update}) => {
       $f7.dialog.alert("Bitte wähle die korrekte Antwortmöglichkeit aus.");
       return;
     }
-    if (data.type == "customAutomatic" && data.customGradingFunction.length <= 0) {
+    if (data.type == "customAutomatic" || data.type == "customMc" && data.customGradingFunction.length <= 0) {
       $f7.dialog.alert("Bitte wähle eine Auswertungsfunktion aus.");
       return;
     }
@@ -509,7 +532,7 @@ export default (props, {$f7, $on, $update}) => {
       type: data.type,
       maxPoints: data.maxPoints,
     }
-    if (data.type == "multipleChoice") {
+    if (data.type == "multipleChoice" || data.type == "customMc") {
       q["options"] = JSON.stringify(questionInEdit.options);
       q["correctAnswer"] = parseInt(data.multipleChoiceAnswer);
     } else if (data.type == "trueFalse") {
