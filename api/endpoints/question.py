@@ -365,7 +365,7 @@ def publishQuestions():
 @questionApi.route("/api/question/customgraders", methods=["GET"])
 @login_required
 def getCustomGraders():
-    return jsonify(CustomGradingManager.availableGraders()), 200
+    return jsonify(CustomGradingManager.getAvailableGraders()), 200
 
 
 @questionApi.route("/api/question/<id>/csv", methods=["GET", "POST"])
