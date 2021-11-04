@@ -48,6 +48,13 @@ module.exports = {
     contentBase: '/www/',
     disableHostCheck: true,
     historyApiFallback: true,
+    proxy: {
+      "/api": {
+        "changeOrigin": true,
+        "cookieDomainRewrite": "localhost",
+        "target": "http://localhost:8081/",
+      }
+    }
   },
   optimization: {
     concatenateModules: true,

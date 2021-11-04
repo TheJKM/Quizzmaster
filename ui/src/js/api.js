@@ -4,12 +4,9 @@
  */
 
 import my from './my.js';
-import baseDomain from './baseDomain.js';
-var config = require('config');
 
 let api = {
   send: function(url, type, data) {
-    url = config.development ? baseDomain + url : url;
     return new Promise(function(resolve, reject) {
       let request = new XMLHttpRequest;
       request.addEventListener("load", function(event) {
