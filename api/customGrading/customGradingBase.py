@@ -20,7 +20,7 @@
 
 
 """
-How to write a cuatom grading function
+How to write a custom grading function
 Step 1: Create a new file in this directory, create a class inheriting CustomGradingBase
 Step 2: Override the executeGrading function and implement your grading within it
 Step 3: Import your class in the manager class, add it to the available methods
@@ -38,13 +38,15 @@ Your job is easy: store the correct points.
 Note: You can alter the value, but you MUST NOT ALTER THE ID!!!
 The application takes care of storing the points back to the database.
 Note that you can get any type of string as value! Take care of type errors. Your function should not raise exceptions.
-If it does, the grading failes, and no points are stored.
+If it does, the grading will fail, and no points are stored.
 """
 
 # Base class definition
 class CustomGradingBase():
-    def __init__(self, dataset):
+    def __init__(self, dataset, maxPoints, correctAnswer):
         self.__dataset = dataset
+        self.__maxPoints = maxPoints
+        self.__correctAnswer = correctAnswer
 
 
     def getResults(self):

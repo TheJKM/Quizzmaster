@@ -25,6 +25,5 @@ from customGrading.customGradingBase import CustomGradingBase
 
 # Class definition
 class WhatDoMostSay(CustomGradingBase):
-    @override
     def executeGrading(self):
         pass

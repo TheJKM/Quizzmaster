@@ -105,7 +105,7 @@ async def asyncHandleMessage(message, bot):
                 sentMessage = await textChannel.send("Dummy für \"" + str(question["category"]) + "\" (" + str(question["displayId"]) + ").")
                 answer = Answer(question["questionId"], team.id, sentMessage.id)
                 dbSession.add(answer)
-                if "multipleChoice" in question:
+                if "multipleChoice" in question or "customMc" in question:
                     emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
                     for i in range(int(question["multipleChoice"])):
                         await sentMessage.add_reaction(emojis[i])
