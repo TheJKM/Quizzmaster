@@ -252,7 +252,7 @@
                   </li>
                 </ul>
               </div>
-              ${questionInEdit.type == "multipleChoice" || questionInEdit.type == "customMc" && $h`
+              ${(questionInEdit.type == "multipleChoice" || questionInEdit.type == "customMc") && $h`
                 <div class="block-title">Antwortmöglichkeiten (bitte die korrekte Antwort markieren)</div>
                 <div class="list">
                   <ul>
@@ -318,7 +318,7 @@
                   </ul>
                 </div>
               `}
-              ${questionInEdit.type == "customAutomatic" || questionInEdit.type == "customMc" && $h`
+              ${(questionInEdit.type == "customAutomatic" || questionInEdit.type == "customMc") && $h`
                 <div class="block-title">Bitte eine Auswertungsfunktion auswählen</div>
                 <div class="list">
                   <ul>
@@ -386,7 +386,7 @@ export default (props, {$f7, $on, $update}) => {
   const editQuestion = (id) => {
     for (const question of questions) {
       if (question.id == id) {
-        questionInEdit = question;
+        questionInEdit = Object.assign({}, question);
       }
     }
     $f7.preloader.show();
@@ -509,8 +509,8 @@ export default (props, {$f7, $on, $update}) => {
 
   const saveQuestion = () => {
     let data = $f7.form.convertToData('#new-question-form');
-    if (data.question == "") {
-      $f7.dialog.alert("Der Titel der Frage darf nicht leer sein.");
+    if (data.question == "" || data.category == "") {
+      $f7.dialog.alert("Titel und Frage dürfen nicht leer sein.");
       return;
     }
     if (data.type == "multipleChoice" && questionInEdit.options.length < 2) {
@@ -521,7 +521,7 @@ export default (props, {$f7, $on, $update}) => {
       $f7.dialog.alert("Bitte wähle die korrekte Antwortmöglichkeit aus.");
       return;
     }
-    if (data.type == "customAutomatic" || data.type == "customMc" && data.customGradingFunction.length <= 0) {
+    if ((data.type == "customAutomatic" || data.type == "customMc") && typeof data.customGradingFunction === "undefined") {
       $f7.dialog.alert("Bitte wähle eine Auswertungsfunktion aus.");
       return;
     }
