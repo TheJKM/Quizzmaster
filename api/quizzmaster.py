@@ -23,7 +23,7 @@
 import os
 from datetime import timedelta
 from flask import Flask, session
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -65,13 +65,19 @@ if not os.path.exists(config.CONFIG_SECRET_KEY):
 
 # Enable http (also in production because of https terminating proxy)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
+if __name__ == "__main__":
+    os.environ['FLASK_ENV'] = 'development'
 
 
 # Create server
 quizzmaster = Flask(__name__)
 SESSION_TYPE = "filesystem"
 SESSION_COOKIE_NAME = "QUIZZMASTER_SESSION"
-SESSION_COOKIE_SECURE = False  # Set this to true for production (SSL required)
+if __name__ == "__main__":  # Running through development server
+    SESSION_COOKIE_SECURE = False
+else:  # Running through uwsgi
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_DOMAIN = config.CONFIG_BASE_DOMAIN.split("//")[1]
 SESSION_COOKIE_HTTPONLY = True
 PERMANENT_SESSION_LIFETIME = 1200
 quizzmaster.config.from_object(__name__)
