@@ -58,7 +58,7 @@ def autoGrade(ids):
                         "points": 0.0,
                     }
                     gradingFunctionInput.append(gradingData)
-                customGrader = CustomGradingManager.getGradingFunctionByName(question.customGradingFunction)(gradingFunctionInput)
+                customGrader = CustomGradingManager.getGradingFunctionByName(question.customGradingFunction)(gradingFunctionInput, question.maxPoints, question.correctAnswer)
                 try:
                     customGrader.executeGrading()
                 except:

@@ -20,7 +20,7 @@
 
 
 # Include dependencies
-from flask import Blueprint, request, session, jsonify
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import exc
 import json

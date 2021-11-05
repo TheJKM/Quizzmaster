@@ -41,7 +41,7 @@ async def evaluateTextAnswer(message):
         question = dbSession.query(Question).filter(Question.id == answer.questionId).first()
         if question is not None:
             if question.state == questionState.asked:
-                if question.type == questionType.text:
+                if question.type == questionType.text or question.type == questionType.custom or question.type == questionType.external:
                     answer.value = message.content
                     try:
                         dbSession.commit()
@@ -65,7 +65,7 @@ async def evaluateReactionAnswer(reaction, message, user, add=False):
         question = dbSession.query(Question).filter(Question.id == answer.questionId).first()
         if question is not None:
             if question.state == questionState.asked:
-                if question.type == questionType.multipleChoice:
+                if question.type == questionType.multipleChoice or question.type == questionType.customMc:
                     emojis = {'1️⃣': 0, '2️⃣': 0, '3️⃣': 0, '4️⃣': 0, '5️⃣': 0, '6️⃣': 0, '7️⃣': 0, '8️⃣': 0, '9️⃣': 0, '🔟': 0}
                     for reaction in message.reactions:
                         for emoji in emojis.keys():

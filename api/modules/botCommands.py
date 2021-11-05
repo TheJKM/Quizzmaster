@@ -62,7 +62,7 @@ async def answerTeamAnswers(sourceMessage):
             if question.state.value >= questionState.asked.value:
                 if answer.value is None:
                     text += "Frage {questionnr} ({title}): (Keine Antwort abgegeben).\n".format(questionnr=question.displayId, title=question.title)
-                elif question.type == questionType.multipleChoice:
+                elif question.type == questionType.multipleChoice or question.type == questionType.customMc:
                     numeric = int(answer.value) + 1
                     options = json.loads(question.options)
                     full = options[int(answer.value)]
