@@ -26,4 +26,25 @@ from customGrading.customGradingBase import CustomGradingBase
 # Class definition
 class WhatDoMostSay(CustomGradingBase):
     def executeGrading(self):
-        pass
+        options = {}
+        # Step 1: Count the occurrences of each option
+        for team in self.__dataset:
+            if team["value"] is not None:
+                if team["value"] in options:
+                    options[team["value"]] += 1
+                else:
+                    options[team["value"]] = 1
+        # Step 2: Determine which option(s) is / are the most used one(s)
+        validAnswers = []
+        mostCount = 0
+        for option, count in options.items():
+            if count > mostCount:  # More: remove all existing
+                validAnswers = [option]
+                mostCount = count
+            elif count == mostCount:  # Same count: add to list
+                validAnswers.append(option)
+                mostCount = count
+        # Step 3: Give full points to those who gave one of the valid answers, zero to all others
+        for team in self.__dataset:
+            if team["value"] is not None:
+                team["points"] = self.__maxPoints if team["value"] in validAnswers else 0.0
