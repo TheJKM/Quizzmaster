@@ -69,6 +69,7 @@ CONFIG_REGISTER_QUESTIONS = [
         "question": "Frage 3"
     },
 ]
+CONFIG_LANDING_PAGE_TITLE = "Quizzmaster Anmeldung"
 CONFIG_LANDING_PAGE_TEXT = "Willkommen bei der Anmeldung zu Test Pubquiz."
 
 # RPC Communication key between web api server and discord service
