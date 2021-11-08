@@ -14,7 +14,7 @@
     <div class="page-content">
       ${showStartSelection && $h`
         <div class="block block-strong">
-          <p>Willkommen bei der Anmeldung zu ${eventName}.</p>
+          <p>${welcomeText}</p>
           ${teamRegistrationOpen == 0 && $h`
             <div class="row">
               <button class="col button button-fill" @click="${createNewTeam}">Ich möchte ein neues Team öffnen</button>
@@ -182,7 +182,7 @@
 import api from '../js/api.js';
 export default (props, {$f7, $on, $update}) => {
   let questions = [];
-  let eventName = "";
+  let welcomeText = "";
   let signupConsent = "";
   let teamId = "";
 
@@ -200,7 +200,7 @@ export default (props, {$f7, $on, $update}) => {
   }
 
   const prev = () => {
-    if (swiper.activeIndex == 0) {
+    if (!swiper || swiper.activeIndex == 0) {
       showStart();
     } else {
       swiper.slidePrev(200);
@@ -277,6 +277,10 @@ export default (props, {$f7, $on, $update}) => {
   }
 
   const checkTeamId = (id) => {
+    if (id == "") {
+      $f7.dialog.alert("Bitte gib eine Team-ID ein.");
+      return;
+    }
     $f7.preloader.show();
     api.send("/api/join/checkid/" + id, "GET", {}).then((result) => {
       $f7.preloader.hide();
@@ -370,7 +374,7 @@ export default (props, {$f7, $on, $update}) => {
         result = JSON.parse(result);
         $f7.preloader.hide();
         questions = result.questions;
-        eventName = result.eventName;
+        welcomeText = result.welcomeText;
         signupConsent = result.consentText;
         $update();
       });

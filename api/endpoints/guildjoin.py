@@ -48,7 +48,7 @@ guildJoinApi = Blueprint("guildJoinApi", __name__)
 def guildJoinQuestions():
     return jsonify({
         "questions": config.CONFIG_REGISTER_QUESTIONS,
-        "eventName": config.CONFIG_EVENT_NAME,
+        "welcomeText": config.CONFIG_LANDING_PAGE_TEXT,
         "consentText": config.CONFIG_SIGNUP_CONSENT,
     })
 

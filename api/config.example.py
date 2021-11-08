@@ -69,7 +69,7 @@ CONFIG_REGISTER_QUESTIONS = [
         "question": "Frage 3"
     },
 ]
-CONFIG_EVENT_NAME = "Test Pubquiz"
+CONFIG_LANDING_PAGE_TEXT = "Willkommen bei der Anmeldung zu Test Pubquiz."
 
 # RPC Communication key between web api server and discord service
 CONFIG_RPC_KEY = "ANYTHING_RANDOM_HERE"
