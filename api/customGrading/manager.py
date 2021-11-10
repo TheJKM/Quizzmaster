@@ -52,5 +52,5 @@ class CustomGradingManager():
     def getGradingFunctionByName(name):
         for grader in CustomGradingManager.availableGraders:
             if grader["class"].__name__ == name:
-                return grader
+                return grader["class"]
         return None
