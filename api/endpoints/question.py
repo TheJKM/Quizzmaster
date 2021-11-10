@@ -20,7 +20,7 @@
 
 
 # Include dependencies
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from flask_login import login_required, current_user
 from sqlalchemy import exc
 import json
@@ -29,6 +29,7 @@ import datetime
 
 # Include modules
 from models.question import Question
+from models.answer import Answer
 from modules.database import database
 from modules.permission import permission
 from modules.discordDispatcher import discordDispatcher
@@ -373,6 +374,13 @@ def getCustomGraders():
 @login_required
 def externalGrading(id):
     if request.method == "GET":
-        return "", 501
+        dbSession = database.createSession()
+        question = dbSession.query(Question).filter(Question.id == id).first()
+        answers = dbSession.query(Answer).filter(Answer.questionId == id).all()
+        csv = ""
+        for answer in answers:
+            points = 0.0 if answer.points is None else answer.points
+            csv.append(str(answer.id) + ";" + str(answer.teamId) + ";" + answer.value + ";" + str(points) + "\n")
+        return Response(csv, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=question_" + question.displayId + "_answers.csv"}), 200
     elif request.method == "POST":
         return "", 501
