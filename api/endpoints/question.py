@@ -90,7 +90,7 @@ def getQuestions():
                 question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
-        elif request.form.get("type") == "customAutomatic" or request.form.get("type") == "customMc":
+        if request.form.get("type") == "customAutomatic" or request.form.get("type") == "customMc":
             question.customGradingFunction = request.form.get("customFunction")
         dbSession.add(question)
         try:
