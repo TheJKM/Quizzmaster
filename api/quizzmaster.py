@@ -62,7 +62,6 @@ if not os.path.exists(config.CONFIG_SECRET_KEY):
     with open(config.CONFIG_SECRET_KEY, "w") as f:
         f.write(es.randomString(40))
 
-
 # Enable http (also in production because of https terminating proxy)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
 if __name__ == "__main__":
@@ -79,6 +78,7 @@ else:  # Running through uwsgi
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_DOMAIN = config.CONFIG_BASE_DOMAIN.split("//")[1]
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 PERMANENT_SESSION_LIFETIME = 1200
 quizzmaster.config.from_object(__name__)
 with open(config.CONFIG_SECRET_KEY, "r") as f:
