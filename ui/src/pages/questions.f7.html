@@ -253,28 +253,36 @@
                 </ul>
               </div>
               ${(questionInEdit.type == "multipleChoice" || questionInEdit.type == "customMc") && $h`
-                <div class="block-title">Antwortmöglichkeiten (bitte die korrekte Antwort markieren)</div>
-                <div class="list">
-                  <ul>
-                    ${questionInEdit.options.map((option, i) => $h`
-                      <li>
-                        <label class="item-radio item-radio-icon-start item-content">
-                          <input type="radio" name="multipleChoiceAnswer" value="${i}" />
-                          <i class="icon icon-radio"></i>
-                          <div class="item-media"><span class="badge">${i + 1}</span></div>
-                          <div class="item-inner">
-                            <div class="item-title">${option}</div>
-                            <div class="item-after">
-                              <a href="#" @click="${() => removeMultipleChoiceOption(i)}">
-                                <span class="badge color-red">x</span>
-                              </a>
+                <div class="block-title">Antwortmöglichkeiten${questionInEdit.type == "multipleChoice" && $h` (bitte die korrekte Antwort markieren) `}</div>
+                ${questionInEdit.options.length > 0 ? $h`
+                  <div class="list">
+                    <ul>
+                      ${questionInEdit.options.map((option, i) => $h`
+                        <li>
+                          <label class="item-radio item-radio-icon-start item-content">
+                            ${questionInEdit.type == "multipleChoice" && $h`
+                              <input type="radio" name="multipleChoiceAnswer" value="${i}" />
+                              <i class="icon icon-radio"></i>
+                            `}
+                            <div class="item-media"><span class="badge">${i + 1}</span></div>
+                            <div class="item-inner">
+                              <div class="item-title">${option}</div>
+                              <div class="item-after">
+                                <a href="#" @click="${() => removeMultipleChoiceOption(i)}">
+                                  <span class="badge color-red">x</span>
+                                </a>
+                              </div>
                             </div>
-                          </div>
-                        </label>
-                      </li>
-                    `)}
-                  </ul>
-                </div>
+                          </label>
+                        </li>
+                      `)}
+                    </ul>
+                  </div>
+                ` : $h`
+                  <div class="block strong">
+                    (Keine Antwortmöglichkeit angegeben.)
+                  </div>
+                `}
                 <div class="list">
                   <ul>
                     <li>
@@ -320,21 +328,27 @@
               `}
               ${(questionInEdit.type == "customAutomatic" || questionInEdit.type == "customMc") && $h`
                 <div class="block-title">Bitte eine Auswertungsfunktion auswählen</div>
-                <div class="list">
-                  <ul>
-                    ${customGradingFunctions.map((functionName, i) => $h`
-                      <li>
-                        <label class="item-radio item-radio-icon-start item-content">
-                        <input type="radio" name="customGradingFunction" value="${functionName.name}" />
-                        <i class="icon icon-radio"></i>
-                        <div class="item-inner">
-                          <div class="item-title">${functionName.name}</div>
-                        </div>
-                      </label>
-                      </li>
-                    `)}
-                  </ul>
-                </div>
+                ${customGradingFunctions.filter(functionName => functionName.mc == (questionInEdit.type == "customMc")).length > 0 ? $h`
+                  <div class="list">
+                    <ul>
+                      ${customGradingFunctions.filter(functionName => functionName.mc == (questionInEdit.type == "customMc")).map((functionName, i) => $h`
+                        <li>
+                          <label class="item-radio item-radio-icon-start item-content">
+                          <input type="radio" name="customGradingFunction" value="${functionName.name}" />
+                          <i class="icon icon-radio"></i>
+                          <div class="item-inner">
+                            <div class="item-title">${functionName.name}</div>
+                          </div>
+                        </label>
+                        </li>
+                      `)}
+                    </ul>
+                  </div>
+                ` : $h`
+                  <div class="block strong">
+                    (Keine Auswertungsfunktion für diesen Fragentyp vorhanden.)
+                  </div>
+                `}
               `}
             </form>
             ${questionInEdit.state == 0 && $h`
@@ -452,6 +466,7 @@ export default (props, {$f7, $on, $update}) => {
     questionInEdit.hint = data.hint;
     questionInEdit.options.push(data.newMultipleChoice);
     questionInEdit.newMultipleChoice = "";
+    questionInEdit.category = data.category;
     $update(() => {
       $f7.form.fillFromData('#new-question-form', questionInEdit);
     });
@@ -513,7 +528,7 @@ export default (props, {$f7, $on, $update}) => {
       $f7.dialog.alert("Titel und Frage dürfen nicht leer sein.");
       return;
     }
-    if (data.type == "multipleChoice" && questionInEdit.options.length < 2) {
+    if ((data.type == "multipleChoice" || data.type == "customMc") && questionInEdit.options.length < 2) {
       $f7.dialog.alert("Eine Multiple Choice Frage muss mindestens zwei Antwortmöglichkeiten haben.");
       return;
     }
