@@ -195,7 +195,7 @@ export default (props, {$f7, $on, $update}) => {
       let previous = 0;
       let isRange = false;
       for (const q of data.questions) {
-        if (q.state == 5) {
+        if (q.state == 7) {
           if (previous == 0) {
             title = "Freigegebene Fragen: " + q.displayId;
             previous = q.displayId;
@@ -226,11 +226,21 @@ export default (props, {$f7, $on, $update}) => {
       let place = 1;
       let actualPoints = 0;
       let counter = 1;
+      let pointIdSort = []
       for (const team of data.teams) {
+        pointIdSort.push({
+          id: team.id,
+          points: team.points,
+        })
+      }
+      console.log(pointIdSort);
+      pointIdSort.sort((a, b) => (a.points > b.points) ? -1 : 1);
+      console.log(pointIdSort);
+      for (const team of pointIdSort) {
         if (team.points != actualPoints && actualPoints != 0) {
           place = counter;
         }
-        team.place = team.points == 0 ? "-" : place;
+        setTeamPlace(team.id, team.points == 0 ? "-" : place);
         actualPoints = team.points;
         counter++;
       }
@@ -242,6 +252,15 @@ export default (props, {$f7, $on, $update}) => {
       isAdmin = result.isAdmin;
       $update();
     });
+  }
+
+  const setTeamPlace = (id, place) => {
+    for (const team of data.teams) {
+      if (team.id == id) {
+        team.place = place;
+        return;
+      }
+    }
   }
 
   const showAnswer = (questionId, teamId) => {
