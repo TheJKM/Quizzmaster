@@ -233,9 +233,7 @@ export default (props, {$f7, $on, $update}) => {
           points: team.points,
         })
       }
-      console.log(pointIdSort);
       pointIdSort.sort((a, b) => (a.points > b.points) ? -1 : 1);
-      console.log(pointIdSort);
       for (const team of pointIdSort) {
         if (team.points != actualPoints && actualPoints != 0) {
           place = counter;
