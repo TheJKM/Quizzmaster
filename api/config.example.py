@@ -54,6 +54,9 @@ CONFIG_SMTP_SENDER = ""
 CONFIG_SMTP_PASSWORD = ""
 CONFIG_SMTP_PORT = 465
 
+# Organization roles (these roles will get access to all team channels, role id as string)
+CONFIG_ORGANIZATION_ROLES = []
+
 # Additional parameters for registration (array)
 CONFIG_REGISTER_QUESTIONS = [
     {
