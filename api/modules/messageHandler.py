@@ -65,6 +65,9 @@ async def asyncHandleMessage(message, bot):
                 guild.me: discord.PermissionOverwrite(read_messages=True),
                 role: discord.PermissionOverwrite(read_messages=True)
             }
+            for roleId in config.CONFIG_ORGANIZATION_ROLES:
+                orgaRole = discord.utils.get(getGuild(bot).roles, id=roleId)
+                overwrites[orgaRole] = discord.PermissionOverwrite(read_messages=True)
             textChannel = await guild.create_text_channel(message["teamId"], overwrites=overwrites, topic="Text- und Antwortenkanal von " + message["teamName"] + " (" + message["teamId"] + ")")
             voiceChannel = await guild.create_voice_channel(message["teamId"], overwrites=overwrites, topic="Sprachkanal von " + message["teamName"] + " (" + message["teamId"] + ")")
             dbSession = database.createSession()
