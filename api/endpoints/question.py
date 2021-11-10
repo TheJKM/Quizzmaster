@@ -86,7 +86,8 @@ def getQuestions():
         question.gradingHint = request.form.get("hint")
         if request.form.get("type") == "multipleChoice" or request.form.get("type") == "customMc":
             question.options = request.form.get("options")
-            question.correctAnswer = request.form.get("correctAnswer")
+            if request.form.get("type") == "multipleChoice":
+                question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "trueFalse":
             question.correctAnswer = request.form.get("correctAnswer")
         elif request.form.get("type") == "customAutomatic" or request.form.get("type") == "customMc":
