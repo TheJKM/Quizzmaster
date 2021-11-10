@@ -50,4 +50,7 @@ class CustomGradingManager():
 
     @staticmethod
     def getGradingFunctionByName(name):
-        pass
+        for grader in CustomGradingManager.availableGraders:
+            if grader["class"].__name__ == name:
+                return grader
+        return None
