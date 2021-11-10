@@ -100,18 +100,19 @@ async def asyncHandleMessage(message, bot):
         dbSession = database.createSession()
         teams = dbSession.query(Team).all()
         for team in teams:
-            textChannel = guild.get_channel(int(team.textChannelId))
-            for question in message["questions"]:
-                sentMessage = await textChannel.send("Dummy für \"" + str(question["category"]) + "\" (" + str(question["displayId"]) + ").")
-                answer = Answer(question["questionId"], team.id, sentMessage.id)
-                dbSession.add(answer)
-                if "multipleChoice" in question or "customMc" in question:
-                    emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
-                    for i in range(int(question["multipleChoice"])):
-                        await sentMessage.add_reaction(emojis[i])
-                elif "trueFalse" in question:
-                    await sentMessage.add_reaction('\N{THUMBS UP SIGN}')
-                    await sentMessage.add_reaction('\N{THUMBS DOWN SIGN}')
+            if team.displayId is not None and team.textChannelId is not None and team.voiceChannelId is not None:
+                textChannel = guild.get_channel(int(team.textChannelId))
+                for question in message["questions"]:
+                    sentMessage = await textChannel.send("Dummy für \"" + str(question["category"]) + "\" (" + str(question["displayId"]) + ").")
+                    answer = Answer(question["questionId"], team.id, sentMessage.id)
+                    dbSession.add(answer)
+                    if "multipleChoice" in question or "customMc" in question:
+                        emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+                        for i in range(int(question["multipleChoice"])):
+                            await sentMessage.add_reaction(emojis[i])
+                    elif "trueFalse" in question:
+                        await sentMessage.add_reaction('\N{THUMBS UP SIGN}')
+                        await sentMessage.add_reaction('\N{THUMBS DOWN SIGN}')
         for question in message["questions"]:
             q = dbSession.query(Question).filter(Question.id == question["questionId"]).first()
             q.state = questionState.waiting
