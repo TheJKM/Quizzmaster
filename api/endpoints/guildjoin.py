@@ -74,7 +74,7 @@ def guildJoinStart():
         if enabled.value == "false":
             dbSession.close()
             return "ERR_CLOSED", 500
-        teams = dbSession.query(Team).all()
+        teams = dbSession.query(Team).filter(Team.displayId.isnot(None)).all()
         if len(teams) >= config.CONFIG_MAX_TEAM_COUNT:
             dbSession.close()
             return "ERR_CLOSED", 500
