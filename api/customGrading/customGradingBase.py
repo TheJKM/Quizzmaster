@@ -44,13 +44,13 @@ If it does, the grading will fail, and no points are stored.
 # Base class definition
 class CustomGradingBase():
     def __init__(self, dataset, maxPoints, correctAnswer):
-        self.__dataset = dataset
-        self.__maxPoints = maxPoints
-        self.__correctAnswer = correctAnswer
+        self.dataset = dataset
+        self.maxPoints = maxPoints
+        self.correctAnswer = correctAnswer
 
 
     def getResults(self):
-        return self.__dataset
+        return self.dataset
 
 
     def executeGrading(self):

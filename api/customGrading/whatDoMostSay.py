@@ -28,7 +28,7 @@ class WhatDoMostSay(CustomGradingBase):
     def executeGrading(self):
         options = {}
         # Step 1: Count the occurrences of each option
-        for team in self.__dataset:
+        for team in self.dataset:
             if team["value"] is not None:
                 if team["value"] in options:
                     options[team["value"]] += 1
@@ -45,6 +45,6 @@ class WhatDoMostSay(CustomGradingBase):
                 validAnswers.append(option)
                 mostCount = count
         # Step 3: Give full points to those who gave one of the valid answers, zero to all others
-        for team in self.__dataset:
+        for team in self.dataset:
             if team["value"] is not None:
-                team["points"] = self.__maxPoints if team["value"] in validAnswers else 0.0
+                team["points"] = self.maxPoints if team["value"] in validAnswers else 0.0
