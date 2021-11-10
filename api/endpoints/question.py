@@ -236,7 +236,7 @@ def prepareQuestions():
                 currentPrepareQuestion["displayId"] = question.displayId
                 currentPrepareQuestion["questionId"] = question.id
                 currentPrepareQuestion["category"] = question.category
-                if question.type == questionType.multipleChoice:
+                if question.type == questionType.multipleChoice or question.type == questionType.customMc:
                     currentPrepareQuestion["multipleChoice"] = len(json.loads(question.options))
                 elif question.type == questionType.trueFalse:
                     currentPrepareQuestion["trueFalse"] = True
