@@ -553,6 +553,9 @@ export default (props, {$f7, $on, $update}) => {
     } else if (data.type == "trueFalse") {
       q["correctAnswer"] = data.trueFalse == "true" ? 1 : 0;
     }
+    if (data.type == "customAutomatic" || data.type == "customMc") {
+      q["customFunction"] = data.customGradingFunction;
+    }
     $f7.preloader.show();
     if (questionInEdit.id == null) {
       api.send("/api/question", "PUT", q).then((result) => {
