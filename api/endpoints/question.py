@@ -381,6 +381,7 @@ def externalGrading(id):
         for answer in answers:
             points = 0.0 if answer.points is None else answer.points
             csv.append(str(answer.id) + ";" + str(answer.teamId) + ";" + answer.value + ";" + str(points) + "\n")
+        dbSession.close()
         return Response(csv, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=question_" + question.displayId + "_answers.csv"}), 200
     elif request.method == "POST":
         return "", 501
