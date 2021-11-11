@@ -6,7 +6,7 @@
 import my from './my.js';
 
 let api = {
-  send: function(url, type, data) {
+  send: function(url, type, data, isPlain = false) {
     return new Promise(function(resolve, reject) {
       let request = new XMLHttpRequest;
       request.addEventListener("load", function(event) {
@@ -19,13 +19,17 @@ let api = {
       request.addEventListener("error", function(event) {
         this.processError(event.target.status, event.target.responseText);
       }.bind(this));
-      let requestData = null;
-      requestData = new FormData();
-      for (let key in data) {
-        requestData.append(key, data[key])
-      }
       request.open(type, url, true);
-      request.send(requestData);
+      if (isPlain) {
+        request.send(data);
+      } else {
+        let requestData = null;
+        requestData = new FormData();
+        for (let key in data) {
+          requestData.append(key, data[key])
+        }
+        request.send(requestData);
+      }
     }.bind(this));
   },
   processError: function(code, data) {

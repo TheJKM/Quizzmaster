@@ -21,6 +21,7 @@
       </div>
     </div>
     <div class="page-content">
+      <input type="file" id="csv-upload" style="display: none;" />
       <div class="block-title">Vorhandene Fragen</div>
       <div class="data-table card">
         <table>
@@ -702,7 +703,14 @@ export default (props, {$f7, $on, $update}) => {
   }
 
   const supplyCsv = (id) => {
-
+    let element = document.getElementById("csv-upload");
+    element.onchange = (e) => {
+      let file = e.target.files[0];
+      let formData = new FormData();
+      formData.append("csv", file, file.name);
+      api.send("/api/question/" + id + "/csv", "POST", formData, true);
+    }
+    element.click();
   }
 
   $on("pageInit", () => {
