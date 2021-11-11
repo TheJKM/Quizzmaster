@@ -14,7 +14,7 @@
     <div class="page-content">
       ${showStartSelection && $h`
         <div class="block block-strong">
-          <p>${welcomeText}</p>
+          <p id="welcomeText"></p>
           ${teamRegistrationOpen == 0 && $h`
             <div class="row">
               <button class="col button button-fill" @click="${createNewTeam}">Ich möchte ein neues Team öffnen</button>
@@ -180,9 +180,10 @@
 </template>
 <script>
 import api from '../js/api.js';
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 export default (props, {$f7, $on, $update}) => {
   let questions = [];
-  let welcomeText = "";
   let signupConsent = "";
   let welcomeTitle = "";
   let teamId = "";
@@ -372,10 +373,18 @@ export default (props, {$f7, $on, $update}) => {
     } else {
       $f7.preloader.show();
       api.send("/api/join/questions", "GET", {}).then((result) => {
+        var renderer = new marked.Renderer();
+        renderer.link = function(href, title, text) {
+          var link = marked.Renderer.prototype.link.call(this, href, title, text);
+          return link.replace("<a","<a class='link external' ");
+        };
+        marked.setOptions({
+          renderer: renderer
+        });
         result = JSON.parse(result);
         $f7.preloader.hide();
         questions = result.questions;
-        welcomeText = result.welcomeText;
+        document.getElementById("welcomeText").innerHTML = DOMPurify.sanitize(marked.parse(result.welcomeText));
         welcomeTitle = result.welcomeTitle;
         signupConsent = result.consentText;
         $update();

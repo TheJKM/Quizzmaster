@@ -21,8 +21,10 @@
   ],
   "dependencies": {
     "dom7": "^3.0.0",
+    "dompurify": "^2.3.3",
     "framework7": "^6.0.17",
     "framework7-icons": "^4.0.2",
+    "marked": "^4.0.1",
     "skeleton-elements": "^3.3.0",
     "swiper": "^6.5.9"
   },
