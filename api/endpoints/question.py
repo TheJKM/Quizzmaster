@@ -384,4 +384,8 @@ def externalGrading(id):
         dbSession.close()
         return Response(csv, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=question_" + str(question.displayId) + "_answers.csv"}), 200
     elif request.method == "POST":
+        if not "csv" in request.files:
+            return "ERR_NO_FILE", 400
+        file = request.files["csv"]
+        print(file)
         return "", 501
