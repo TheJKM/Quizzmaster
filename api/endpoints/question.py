@@ -122,6 +122,8 @@ def getQuestion(id):
             "gradingHint": question.gradingHint,
             "correctAnswer": question.correctAnswer,
             "maxPoints": question.maxPoints,
+            "state": question.state.value,
+            "category": question.category
         }), 200
     elif request.method == "POST":
         question = dbSession.query(Question).filter(Question.id == id).first()
