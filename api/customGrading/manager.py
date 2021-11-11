@@ -21,6 +21,7 @@
 
 # Include evaluators
 from customGrading.whatDoMostSay import WhatDoMostSay
+from customGrading.guessQuestion import GuessQuestion
 
 
 class CustomGradingManager():
@@ -28,6 +29,10 @@ class CustomGradingManager():
         {
             "mc": True,
             "class": WhatDoMostSay,
+        },
+        {
+            "mc": False,
+            "class": GuessQuestion,
         }
     ]
 
