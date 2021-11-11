@@ -377,7 +377,7 @@ def externalGrading(id):
         dbSession = database.createSession()
         question = dbSession.query(Question).filter(Question.id == id).first()
         answers = dbSession.query(Answer).filter(Answer.questionId == id).all()
-        csv = ""
+        csv = "id;teamid;antwort;punkte\n"
         for answer in answers:
             points = 0.0 if answer.points is None else answer.points
             csv += str(answer.id) + ";" + str(answer.teamId) + ";" + str(answer.value) + ";" + str(points) + "\n"
