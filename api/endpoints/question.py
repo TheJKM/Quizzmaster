@@ -123,7 +123,8 @@ def getQuestion(id):
             "correctAnswer": question.correctAnswer,
             "maxPoints": question.maxPoints,
             "state": question.state.value,
-            "category": question.category
+            "category": question.category,
+            "customGradingFunction": question.customGradingFunction,
         }), 200
     elif request.method == "POST":
         question = dbSession.query(Question).filter(Question.id == id).first()
