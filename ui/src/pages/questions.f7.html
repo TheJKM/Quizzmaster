@@ -73,7 +73,7 @@
                     ${question.state >= 5 && $h`
                       <a href="#" @click="${() => loadCsv(question.id)}"><i class="f7-icons icon">square_arrow_up_fill</i></a>
                     `}
-                    ${question.state == 5 && question.type == 3 && $h`
+                    ${(question.state == 5 && question.type == 4) && $h`
                       <a href="#" @click="${() => supplyCsv(question.id)}"><i class="f7-icons icon">square_arrow_right_fill</i></a>
                     `}
                   </td>
@@ -698,10 +698,10 @@ export default (props, {$f7, $on, $update}) => {
   }
 
   const loadCsv = (id) => {
-
+    window.open("/api/question/" + id + "/csv", '_blank').focus();
   }
 
-  const supplyCsv = (idcd ) => {
+  const supplyCsv = (id) => {
 
   }
 
