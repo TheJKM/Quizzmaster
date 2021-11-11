@@ -47,6 +47,8 @@ let api = {
       }
       console.log(my.ls);
       my.ls.open();
+    } else if (code == 400 && data == "ERR_NOT_NUMERIC") {
+      this.fireNumericError();
     } else {
       this.fallbackError();
     }
@@ -59,6 +61,9 @@ let api = {
   },
   fallbackError: function() {
     my.app.dialog.alert("Es ist ein Fehler aufgetreten.");
+  },
+  fireNumericError: function() {
+    my.app.dialog.alert("Einige Punktstände konnten nicht als Zahl interpretiert werden. Bitte die Punkte überprüfen.");
   }
 }
 

@@ -23,6 +23,7 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_login import login_required, current_user
 from sqlalchemy import exc
+from csv import DictReader
 import json
 import datetime
 
@@ -386,6 +387,25 @@ def externalGrading(id):
     elif request.method == "POST":
         if not "csv" in request.files:
             return "ERR_NO_FILE", 400
-        file = request.files["csv"]
-        print(file)
-        return "", 501
+        fileString = request.files["csv"].read().decode("utf-8")
+        csvfile = DictReader(fileString.splitlines())
+        dbSession = database.createSession()
+        question = dbSession.query(Question).filter(Question.id == id).first()
+        maxPoints = question.maxPoints
+        for row in csvfile:
+            answer = dbSession.query(Answer).filter(Answer.id == row["id"]).first()
+            try:
+                wantedPoints = float(row["punkte"])
+                if wantedPoints > maxPoints:
+                    wantedPoints = maxPoints
+                answer.points = wantedPoints
+            except:
+                return "ERR_NOT_NUMERIC", 400
+        question.state = questionState.waitForPublishing
+        try:
+            dbSession.commit()
+        except exc.SQLAlchemyError:
+            dbSession.close()
+            return "ERR_DATABASE", 500
+        dbSession.close()
+        return "SUCCESS", 200
