@@ -52,10 +52,20 @@ class mail:
         msg.attach(part1)
         text = msg.as_string()
         try:
-            with smtplib.SMTP_SSL(server, config.CONFIG_SMTP_PORT, context=ssl.create_default_context()) as server:
-                server.login(login, password)
-                server.sendmail(sender, receiver, text)
-                return 0
+            if config.CONFIG_SMTP_PORT == 465:  # SSL
+                with smtplib.SMTP_SSL(server, config.CONFIG_SMTP_PORT, context=ssl.create_default_context()) as server:
+                    server.login(login, password)
+                    server.sendmail(sender, receiver, text)
+                    return 0
+            elif config.CONFIG_SMTP_PORT == 587:  # STARTTLS
+                context = ssl.create_default_context()
+                with smtplib.SMTP(server, config.CONFIG_SMTP_PORT) as server:
+                    server.starttls(context=context)
+                    server.login(login, password)
+                    server.sendmail(sender, receiver, text)
+                    return 0
+            else:
+                return -4
         except (gaierror, ConnectionRefusedError):
             return -1
         except smtplib.SMTPServerDisconnected:
