@@ -51,6 +51,7 @@ def guildJoinQuestions():
         "welcomeText": config.CONFIG_LANDING_PAGE_TEXT,
         "welcomeTitle": config.CONFIG_LANDING_PAGE_TITLE,
         "consentText": config.CONFIG_SIGNUP_CONSENT,
+        "discordExplanation": config.CONFIG_DISCORD_EXPLANATION,
     })
 
 
@@ -87,11 +88,11 @@ def guildJoinStart():
         dbSession.add(team)
         user = User(True, email=request.form.get("email"))
     else:
-        user = User(False, teamId=request.form.get("teamId"))
         team = dbSession.query(Team).filter(Team.displayId == request.form.get("teamId")).first()
         if team is None:
             dbSession.close()
             return "ERR_INVALID_TEAM_ID", 500
+        user = User(False, teamId=team.id)
     dbSession.add(user)
     try:
         dbSession.commit()

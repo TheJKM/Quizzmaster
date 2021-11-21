@@ -131,7 +131,7 @@
               </div>
               <div class="swiper-slide">
                 <div class="block block-strong">
-                  <p>Im nächsten Schritt meldest du dich mit deinem Discord-Account an. So können wir dich direkt unserem Discord-Server hinzufügen und die korrekten Rollen vergeben. Du wirst dazu auf die Discord-Webseite weitergeleitet, und gelangst anschließend wieder zurück auf diese Seite. Keine Angst, wir werden dich ausschließlich zu unserem Pubquiz-Server hinzufügen, und deine ID verwenden, um deine Antworten deinem Team zuzuordnen. Sämtliche Daten werden spätestens 7 Tage nach dem Event gelöscht.</p>
+                  <p>${discordExplanation}</p>
                   <div class="row">
                     <button class="col button button-fill" @click="${prev}"><i class="icon f7-icons">arrow_left</i><span> Zurück</span></button>
                     <button class="col button button-fill" @click="${discord}"><span>Weiter zu Discord </span><i class="icon f7-icons">arrow_right</i></button>
@@ -186,7 +186,9 @@ export default (props, {$f7, $on, $update}) => {
   let questions = [];
   let signupConsent = "";
   let welcomeTitle = "";
+  let welcomeText = "";
   let teamId = "";
+  let discordExplanation = "";
 
   let showStartSelection = true;
   let showNewTeamSlider = false;
@@ -243,7 +245,9 @@ export default (props, {$f7, $on, $update}) => {
     showStartSelection = true;
     showJoinTeamView = false;
     showNewTeamSlider = false;
-    $update();
+    $update(() => {
+      renderWelcomeText();
+    });
   }
 
   const discord = () => {
@@ -312,7 +316,7 @@ export default (props, {$f7, $on, $update}) => {
     if (validateEmail(data.email)) {
       next();
     } else {
-      $f7.dialog.alert("Bitte gib einegültige E-Mail Adresse an.", "Eingabefehler");
+      $f7.dialog.alert("Bitte gib eine gültige E-Mail Adresse an.", "Eingabefehler");
     }
   }
 
@@ -330,6 +334,10 @@ export default (props, {$f7, $on, $update}) => {
       return true;
     }
     return false;
+  }
+
+  const renderWelcomeText = () => {
+    document.getElementById("welcomeText").innerHTML = DOMPurify.sanitize(marked.parse(welcomeText));
   }
 
   $on("pageInit", () => {
@@ -384,10 +392,12 @@ export default (props, {$f7, $on, $update}) => {
         result = JSON.parse(result);
         $f7.preloader.hide();
         questions = result.questions;
-        document.getElementById("welcomeText").innerHTML = DOMPurify.sanitize(marked.parse(result.welcomeText));
+        welcomeText = result.welcomeText;
         welcomeTitle = result.welcomeTitle;
         signupConsent = result.consentText;
+        discordExplanation = result.discordExplanation;
         $update();
+        renderWelcomeText();
       });
       api.send("/api/teamregistration", "GET", {}).then((result) => {
         if (result == "OPEN") {
