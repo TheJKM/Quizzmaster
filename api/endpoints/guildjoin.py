@@ -115,8 +115,10 @@ def guildJoinAuthenticate(id, team):
     if user is None or teamObj is None:
         dbSession.close()
         return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
+    if user.registrationStatus is not None:
+        return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
     user.teamId = team
-    if user.isCaptain:
+    if user.isCaptain and teamObj.displayId is None:
         teamObj.displayId = teamid.generate(team)
     try:
         dbSession.commit()
