@@ -63,7 +63,7 @@ def getTeams():
             "name": t.name,
             "information": json.loads(t.information),
             "memberCount": memberCount,
-            "captainEmail": captain.email if captain.email is not None else "-",
+            "captainEmail": captain.email if "email" in captain else "-",
             "displayId": t.displayId
         })
     dbSession.close()
