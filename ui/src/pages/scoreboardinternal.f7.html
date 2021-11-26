@@ -38,23 +38,58 @@
                 <td class="label-cell">${team.points}</td>
                 ${data.questions.map((question) => $h`
                   <td class="label-cell">
-                    ${isAdmin && $h`
-                      <a href="#" @click="${() => showAnswer(question.id, team.id)}">
-                        ${question.state <= 4 && $h`
-                          <i class="icon f7-icons">clock_fill</i>
-                        `}
-                        ${question.state > 4 && $h`
-                          ${getQuestionPoints(question.id, team.id)}
-                        `}
-                      </a>
+                    ${question.state <= 4 && $h`
+                      <i class="icon f7-icons">clock_fill</i>
                     `}
-                    ${!isAdmin && $h`
+                    ${question.state == 5 && $h`
                       <span>
-                        ${question.state <= 4 && $h`
-                          <i class="icon f7-icons">clock_fill</i>
-                        `}
-                        ${question.state > 4 && $h`
+                        ${getQuestionPoints(question.id, team.id, true) == 2 && $h`
                           ${getQuestionPoints(question.id, team.id)}
+                        `}
+                        ${getQuestionPoints(question.id, team.id, true) < 2 && $h`
+                          <span>
+                            ${isAdmin && $h`
+                              <a href="#" @click="${() => showAnswer(question.id, team.id)}">
+                                ${getQuestionPoints(question.id, team.id, true) == 0 && $h`
+                                  <i class="icon f7-icons">pencil_circle</i>
+                                `}
+                                ${getQuestionPoints(question.id, team.id, true) > 0 && $h`
+                                  ${getQuestionPoints(question.id, team.id)}
+                                `}
+                              </a>
+                            `}
+                            ${!isAdmin && $h`
+                              <span>
+                                ${getQuestionPoints(question.id, team.id, true) == 0 && $h`
+                                  <i class="icon f7-icons">pencil_circle</i>
+                                `}
+                                ${getQuestionPoints(question.id, team.id, true) > 0 && $h`
+                                  ${getQuestionPoints(question.id, team.id)}
+                                `}
+                              </span>
+                            `}
+                          </span>
+                        `}
+                      </span>
+                    `}
+                    ${question.state > 5 && $h`
+                      <span>
+                        ${getQuestionPoints(question.id, team.id, true) == 2 && $h`
+                          ${getQuestionPoints(question.id, team.id)}
+                        `}
+                        ${getQuestionPoints(question.id, team.id, true) < 2 && $h`
+                          <span>
+                            ${isAdmin && $h`
+                              <a href="#" @click="${() => showAnswer(question.id, team.id)}">
+                                ${getQuestionPoints(question.id, team.id)}
+                              </a>
+                            `}
+                            ${!isAdmin && $h`
+                              <span>
+                                ${getQuestionPoints(question.id, team.id)}
+                              </span>
+                            `}
+                          </span>
                         `}
                       </span>
                     `}
@@ -175,17 +210,20 @@ export default (props, {$f7, $on, $update}) => {
     return false;
   }
 
-  const getQuestionPoints = (questionId, teamId) => {
+  const getQuestionPoints = (questionId, teamId, scriptable = false) => {
     for (const team of data.teams) {
       if (team.id == teamId) {
         for (const answer of team.answers) {
           if (answer.questionId == questionId) {
+            if (scriptable) {
+              return answer.points == null ? 0 : 1;
+            }
             return answer.points == null ? "-" : answer.points;
           }
         }
       }
     }
-    return "?"
+    return scriptable ? 2 : "?";
   }
 
   const loadData = () => {
