@@ -70,6 +70,11 @@ def autoGrade(ids):
                             answer.points = gradedAnswer["points"]
                             break
                 question.state = questionState.waitForPublishing
+            elif question.type == questionType.text:
+                answers = dbSession.query(Answer).filter(Answer.questionId == question.id).all()
+                for answer in answers:
+                    if answer.value == None:
+                        answer.points = float(0)
     try:
         dbSession.commit()
         dbSession.close()
