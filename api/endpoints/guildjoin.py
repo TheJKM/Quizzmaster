@@ -111,13 +111,19 @@ def guildJoinStart():
 def guildJoinAuthenticate(id, team):
     dbSession = database.createSession()
     user = dbSession.query(User).filter(User.id == id).first()
-    team = dbSession.query(Team).filter(Team.id == team).first()
-    if user is None or team is None:
+    teamObj = dbSession.query(Team).filter(Team.id == team).first()
+    if user is None or teamObj is None:
         dbSession.close()
         return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
     user.teamId = team
     if user.isCaptain:
-        team.displayId = teamid.generate(team)
+        teamObj.displayId = teamid.generate(team)
+    try:
+        dbSession.commit()
+    except exc.SQLAlchemyError:
+        dbSession.close()
+        return redirect(config.CONFIG_BASE_DOMAIN + "/start_database")
+    dbSession.close()
     scope = ["guilds.join", "identify"]
     discord = oauth.makeSession(scope=scope)
     authorizationUrl, state = discord.authorization_url(config.CONFIG_DISCORD_API_BASE + "/oauth2/authorize")
