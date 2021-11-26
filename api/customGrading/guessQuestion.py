@@ -26,4 +26,49 @@ from customGrading.customGradingBase import CustomGradingBase
 # Class definition
 class GuessQuestion(CustomGradingBase):
     def executeGrading(self):
-        pass
+        # Step 1: Determine the best answer
+        answers = []
+        sum_valid_answers = 0
+        valid_answers = 0
+        for team in test:
+            try:
+                value_float = float(team["value"])
+                sum_valid_answers += value_float
+                valid_answers += 1
+            except  (ValueError, TypeError) as error:
+                value_float = -1e10
+            answers.append(value_float)
+        mean_guess = sum_valid_answers / valid_answers
+
+        # Step 2: Determine which answers were best
+        differences = []
+        for ans in answers:
+            differences.append(abs(ans-mean_guess))
+        differences.sort()
+
+        # Step 3: Set intervals for points
+        # Currently set to top 50% receiving points, in equally sized clusters in steps of 0.5 points
+        # With the assumption that every cluster includes at least one team
+        point_range = int(self.maxPoints*2)
+        point_size = round(valid_answers/(2*point_range)+0.5)
+
+        # Step 4: Determine the cutoffs for each cluster given all answers
+        cutoffs = []
+        index = -1
+        for i in range(point_range):
+            index += point_size
+            cutoffs.append(differences[index])
+
+        # Step 5: Assign the points to each team given the selected clusters
+        for team in test:
+            try:
+                value_float = float(team["value"])
+            except  (ValueError, TypeError) as error:
+                value_float = -1e10
+            difference = abs(value_float-mean_guess)
+            for i in range(len(cutoffs)):
+                if difference <= cutoffs[i]:
+                    team["points"] = self.maxPoints - i*0.5
+                    break
+            if difference > cutoffs[-1]:
+                team["points"] = 0.0
