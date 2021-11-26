@@ -46,7 +46,7 @@ def gradingAvailable():
     dbSession = database.createSession()
     questions = dbSession.query(Question).filter(Question.state == questionState.inGrading).filter(Question.type == questionType.text).all()
     for question in questions:
-        answers = dbSession.query(Answer).filter(Answer.questionId == question.id).filter(Answer.graderAssigned == None).count()
+        answers = dbSession.query(Answer).filter(Answer.questionId == question.id).filter(Answer.graderAssigned == None).filter(Answer.points == None).count()
         if answers > 0:
             dbSession.close()
             return "SUCCESS", 200
@@ -62,7 +62,7 @@ def applyForGrading():
     dbSession = database.createSession()
     questions = dbSession.query(Question).filter(Question.state == questionState.inGrading).filter(Question.type == questionType.text).all()
     for question in questions:
-        answer = dbSession.query(Answer).filter(Answer.questionId == question.id).filter(Answer.graderAssigned == None).first()
+        answer = dbSession.query(Answer).filter(Answer.questionId == question.id).filter(Answer.graderAssigned == None).filter(Answer.points == None).first()
         if answer is not None:
             answer.graderAssigned = True
             result = {
@@ -91,7 +91,7 @@ def gradeAnswer(id):
     dbSession = database.createSession()
     answer = dbSession.query(Answer).filter(Answer.id == id).first()
     answer.points = float(request.form.get("points"))
-    openAnswers = dbSession.query(Answer).filter(Answer.questionId == answer.questionId).filter(Answer.points == None).count()
+    openAnswers = dbSession.query(Answer).filter(Answer.questionId == answer.questionId).filter(Answer.points == None).filter(Answer.points == None).count()
     if openAnswers == 0:
         question = dbSession.query(Question).filter(Question.id == answer.questionId).first()
         question.state = questionState.waitForPublishing
