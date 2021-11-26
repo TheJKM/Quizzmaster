@@ -109,6 +109,15 @@ def guildJoinStart():
 
 @guildJoinApi.route("/api/join/authenticate/<id>/<team>", methods=["GET"])
 def guildJoinAuthenticate(id, team):
+    dbSession = database.createSession()
+    user = dbSession.query(User).filter(User.id == id).first()
+    team = dbSession.query(Team).filter(Team.id == team).first()
+    if user is None or team is None:
+        dbSession.close()
+        return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
+    user.teamId = team
+    if user.isCaptain:
+        team.displayId = teamid.generate(team)
     scope = ["guilds.join", "identify"]
     discord = oauth.makeSession(scope=scope)
     authorizationUrl, state = discord.authorization_url(config.CONFIG_DISCORD_API_BASE + "/oauth2/authorize")
@@ -150,15 +159,12 @@ def guildJoinFinalize():
         if user is None:
             dbSession.close()
             return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
-        user.teamId = session["database_team_id"]
         user.discordId = session["discord_user_id"]
         user.registrationStatus = registrationState.added
         team = dbSession.query(Team).filter(Team.id == session["database_team_id"]).first()
         if team is None:
             dbSession.close()
             return redirect(config.CONFIG_BASE_DOMAIN + "/start_session")
-        if user.isCaptain:
-            team.displayId = teamid.generate(session["database_team_id"])
         try:
             dbSession.commit()
         except exc.SQLAlchemyError:
