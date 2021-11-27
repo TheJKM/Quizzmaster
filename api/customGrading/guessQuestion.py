@@ -19,6 +19,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+# Include dependencies
+import re
+
+
 # Include modules
 from customGrading.customGradingBase import CustomGradingBase
 
@@ -30,12 +34,15 @@ class GuessQuestion(CustomGradingBase):
         answers = []
         sum_valid_answers = 0
         valid_answers = 0
-        for team in test:
+        for team in self.dataset:
             try:
-                value_float = float(team["value"])
+                searchFloats = re.findall(r"[-+]?\d*\.\d+|\d+", team["value"].replace(",", "."))
+                if len(searchFloats) == 0:
+                    continue
+                value_float = float(searchFloats[0])
                 sum_valid_answers += value_float
                 valid_answers += 1
-            except  (ValueError, TypeError) as error:
+            except (ValueError, TypeError) as error:
                 value_float = -1e10
             answers.append(value_float)
         mean_guess = sum_valid_answers / valid_answers
@@ -60,10 +67,10 @@ class GuessQuestion(CustomGradingBase):
             cutoffs.append(differences[index])
 
         # Step 5: Assign the points to each team given the selected clusters
-        for team in test:
+        for team in self.dataset:
             try:
                 value_float = float(team["value"])
-            except  (ValueError, TypeError) as error:
+            except (ValueError, TypeError) as error:
                 value_float = -1e10
             difference = abs(value_float-mean_guess)
             for i in range(len(cutoffs)):
