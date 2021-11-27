@@ -30,6 +30,7 @@ from models.team import Team
 from models.user import User
 from modules.database import database
 from modules.permission import permission
+from enums.registrationState import registrationState
 import config
 
 
@@ -66,10 +67,14 @@ def getTeams():
             "displayId": t.displayId,
         })
         if captain is not None:
-            if not captain.registrationStatus == "added":
-                response["teams"][-1]["regisrationSuccess"] = False
-                response["teams"][-1]["finalizeLink"] = config.CONFIG_BASE_DOMAIN + "/api/join/authenticate/" + str(captain.id) + "/" + str(t.id)
-            else:
+            if captain.registrationStatus == registrationState.added:
                 response["teams"][-1]["regisrationSuccess"] = True
+            else:
+                response["teams"][-1]["regisrationSuccess"] = False
+                response["teams"][-1]["finalizeLink"] = config.CONFIG_BASE_DOMAIN + "/api/join/authenticate/" + str(
+                    captain.id) + "/" + str(t.id)
+        else:
+            response["teams"][-1]["regisrationSuccess"] = False
+            response["teams"][-1]["finalizeLink"] = "Error: No link available, captain is not in database."
     dbSession.close()
     return jsonify(response), 200
