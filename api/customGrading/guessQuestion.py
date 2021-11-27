@@ -36,10 +36,7 @@ class GuessQuestion(CustomGradingBase):
         valid_answers = 0
         for team in self.dataset:
             try:
-                searchFloats = re.findall(r"[-+]?\d*\.\d+|\d+", team["value"].replace(",", "."))
-                if len(searchFloats) == 0:
-                    continue
-                value_float = float(searchFloats[0])
+                value_float = self.extractFloats(team["value"])
                 sum_valid_answers += value_float
                 valid_answers += 1
             except (ValueError, TypeError) as error:
@@ -69,7 +66,7 @@ class GuessQuestion(CustomGradingBase):
         # Step 5: Assign the points to each team given the selected clusters
         for team in self.dataset:
             try:
-                value_float = float(team["value"])
+                value_float = self.extractFloats(team["value"])
             except (ValueError, TypeError) as error:
                 value_float = -1e10
             difference = abs(value_float-mean_guess)
@@ -79,3 +76,13 @@ class GuessQuestion(CustomGradingBase):
                     break
             if difference > cutoffs[-1]:
                 team["points"] = 0.0
+
+
+    def extractFloats(self, input):
+        try:
+            searchFloats = re.findall(r"[-+]?\d*\.\d+|\d+", input.replace(",", "."))
+            if len(searchFloats) == 0:
+                return -1e10
+            return float(searchFloats[0])
+        except:
+            return -1e10
