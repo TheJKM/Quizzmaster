@@ -314,6 +314,11 @@ export default (props, {$f7, $on, $update}) => {
   const eMailNext = () => {
     let data = $f7.form.convertToData('#newTeamForm');
     if (validateEmail(data.email)) {
+      api.send("/api/emailcheckpoint", "POST", {}).then((result) => {
+        if (result != "OK") {
+          console.log("Statistics failed.");
+        }
+      })
       next();
     } else {
       $f7.dialog.alert("Bitte gib eine gültige E-Mail Adresse an.", "Eingabefehler");
@@ -331,7 +336,6 @@ export default (props, {$f7, $on, $update}) => {
 
   const validateEmail = (input) => {
     if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input)) {
-      api.send("/api/emailcheckpoint", "POST", {})
       return true;
     }
     return false;

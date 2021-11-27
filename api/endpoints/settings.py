@@ -40,6 +40,20 @@ settingsApi = Blueprint("settingsApi", __name__)
 @settingsApi.route("/api/teamregistration", methods=["GET"])
 def teamRegistrationOpen():
     dbSession = database.createSession()
+    emailStats = dbSession.query(Statistics).filter(Statistics.key == "page").first()
+    hasToCreate = False
+    if emailStats is None:
+        emailStats = Statistics("page", 0)
+        hasToCreate = True
+    oldValue = emailStats.value
+    oldValue += 1
+    emailStats.value = oldValue
+    if hasToCreate:
+        dbSession.add(emailStats)
+    try:
+        dbSession.commit()
+    except exc.SQLAlchemyError:
+        pass
     enabled = dbSession.query(Settings).filter(Settings.key == "teamRegistrationOpen").first()
     if enabled.value == "false":
         dbSession.close()
