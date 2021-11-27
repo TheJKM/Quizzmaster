@@ -28,24 +28,20 @@
               <tr>
                 <td class="label-cell">${setting.key}</td>
                 ${typeof setting.value == "string" && $h`
-                  <span>
+                  <td class="label-cell">
                     ${setting.value == "true" && $h`
-                      <td class="label-cell">
-                        <label class="toggle toggle-init">
-                          <input type="checkbox" checked @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
-                          <span class="toggle-icon"></span>
-                        </label>
-                      </td>
+                      <label class="toggle toggle-init">
+                        <input type="checkbox" checked @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                        <span class="toggle-icon"></span>
+                      </label>
                     `}
                     ${setting.value != "true" && $h`
-                      <td class="label-cell">
-                        <label class="toggle toggle-init">
-                          <input type="checkbox" @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
-                          <span class="toggle-icon"></span>
-                        </label>
-                      </td>
+                      <label class="toggle toggle-init">
+                        <input type="checkbox" @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                        <span class="toggle-icon"></span>
+                      </label>
                     `}
-                  </span>
+                  </td>
                 `}
                 ${typeof setting.value == "number" && $h`
                   <td class="label-cell">${setting.value}</td>
