@@ -27,7 +27,7 @@
             ${data.map((setting) => $h`
               <tr>
                 <td class="label-cell">${setting.key}</td>
-                ${typeof setting.value == "boolean" && $h`
+                ${typeof setting.value == "string" && $h`
                   <span>
                     ${setting.value == "true" && $h`
                       <td class="label-cell">
