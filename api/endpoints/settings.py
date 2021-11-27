@@ -99,6 +99,12 @@ def getSetting():
             "key": s.key,
             "value": s.value
         })
+    statistics = dbSession.query(Statistics).all()
+    for s in statistics:
+        response.append({
+            "key": s.key,
+            "value": s.value
+        })
     dbSession.close()
     return jsonify(response), 200
 

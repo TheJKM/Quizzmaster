@@ -27,21 +27,28 @@
             ${data.map((setting) => $h`
               <tr>
                 <td class="label-cell">${setting.key}</td>
-                ${setting.value == "true" && $h`
-                  <td class="label-cell">
-                    <label class="toggle toggle-init">
-                      <input type="checkbox" checked @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
-                      <span class="toggle-icon"></span>
-                    </label>
-                  </td>
+                ${typeof setting.value == "boolean" && $h`
+                  <span>
+                    ${setting.value == "true" && $h`
+                      <td class="label-cell">
+                        <label class="toggle toggle-init">
+                          <input type="checkbox" checked @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                          <span class="toggle-icon"></span>
+                        </label>
+                      </td>
+                    `}
+                    ${setting.value != "true" && $h`
+                      <td class="label-cell">
+                        <label class="toggle toggle-init">
+                          <input type="checkbox" @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
+                          <span class="toggle-icon"></span>
+                        </label>
+                      </td>
+                    `}
+                  </span>
                 `}
-                ${setting.value != "true" && $h`
-                  <td class="label-cell">
-                    <label class="toggle toggle-init">
-                      <input type="checkbox" @click="${() => updateSetting(setting.key)}" id="setting-${setting.key}" />
-                      <span class="toggle-icon"></span>
-                    </label>
-                  </td>
+                ${typeof setting.value == "number" && $h`
+                  <td class="label-cell">${setting.value}</td>
                 `}
               </tr>
             `)}
