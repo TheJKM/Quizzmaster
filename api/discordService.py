@@ -41,6 +41,7 @@ from models.question import Question
 from models.answer import Answer
 from models.backendUser import BackendUser
 from models.settings import Settings
+from models.statistics import Statistics
 
 
 # Defint the bot description

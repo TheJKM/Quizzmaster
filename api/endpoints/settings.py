@@ -28,6 +28,7 @@ from sqlalchemy import exc
 # Include modules
 from models.settings import Settings
 from models.team import Team
+from models.statistics import Statistics
 from modules.database import database
 import config
 
@@ -49,6 +50,28 @@ def teamRegistrationOpen():
         return "FULL", 200
     dbSession.close()
     return "OPEN", 200
+
+
+@settingsApi.route("/api/emailcheckpoint", methods=["POST"])
+def emailCheckPoint():
+    dbSession = database.createSession()
+    emailStats = dbSession.query(Statistics).filter(Statistics.key == "email").first()
+    hasToCreate = False
+    if emailStats is None:
+        emailStats = Statistics("email", 0)
+        hasToCreate = True
+    oldValue = emailStats.value
+    oldValue += 1
+    emailStats.value = oldValue
+    if hasToCreate:
+        dbSession.add(emailStats)
+    try:
+        dbSession.commit()
+    except exc.SQLAlchemyError:
+        dbSession.close()
+        return "ERROR", 200  # Do not mark error as it's an internal function
+    dbSession.close()
+    return "OK", 200
 
 
 @settingsApi.route("/api/setting", methods=["GET"])
