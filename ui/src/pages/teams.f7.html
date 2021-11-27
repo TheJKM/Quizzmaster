@@ -21,6 +21,7 @@
       <div class="data-table card">
         <table>
           <thead>
+            <th class="label-cell">Status</th>
             <th class="label-cell">Teamname</th>
             <th class="label-cell">Anzahl Mitglieder</th>
             <th class="label-cell">Team ID</th>
@@ -32,6 +33,18 @@
           <tbody>
             ${teams.map((team) => $h`
               <tr>
+                ${team.regisrationSuccess && $h`
+                  <td class="label-cell">
+                    <i class="icon f7-icons color-green">checkmark_circle_fill</i>
+                  </td>
+                `}
+                ${!team.regisrationSuccess && $h`
+                  <td class="label-cell">
+                    <a href="#" @click="${() => copyToClipboard(team.finalizeLink)}">
+                      <i class="icon f7-icons color-red">exclamationmark_circle_fill</i>
+                    </a>
+                  </td>
+                `}
                 <td class="label-cell">${team.name}</td>
                 <td class="label-cell">${team.memberCount}</td>
                 <td class="label-cell">${team.displayId}</td>
@@ -74,6 +87,7 @@ import api from '../js/api.js';
 export default (props, {$f7, $on, $update}) => {
   let teams = [];
   let teamInformation = [];
+  let toastIcon;
 
   const loadData = () => {
     $f7.preloader.show();
@@ -83,6 +97,23 @@ export default (props, {$f7, $on, $update}) => {
       teams = result.teams;
       teamInformation = result.teamInformation;
       $update();
+    });
+  }
+
+  const copyToClipboard = (link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      if (!toastIcon) {
+        toastIcon = $f7.toast.create({
+          icon: '<i class="f7-icons">checkmark</i>',
+          text: 'Link in die Zwischenablage kopiert',
+          position: 'center',
+          closeTimeout: 2000,
+        });
+      }
+      // Open it
+      toastIcon.open();
+    }, (err) => {
+      console.error('Unable to copy link to clipboard: ', err);
     });
   }
 

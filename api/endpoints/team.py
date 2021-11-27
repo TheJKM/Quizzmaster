@@ -20,9 +20,8 @@
 
 
 # Include dependencies
-from flask import Blueprint, request, session, jsonify
+from flask import Blueprint, jsonify
 from flask_login import login_required, current_user
-from sqlalchemy import exc
 import json
 
 
@@ -64,7 +63,13 @@ def getTeams():
             "information": json.loads(t.information),
             "memberCount": memberCount,
             "captainEmail": captain.email if captain is not None else "-",
-            "displayId": t.displayId
+            "displayId": t.displayId,
         })
+        if captain is not None:
+            if not captain.registrationStatus == "added":
+                response["teams"][-1]["regisrationSuccess"] = False
+                response["teams"][-1]["finalizeLink"] = config.CONFIG_BASE_DOMAIN + "/api/join/authenticate/" + str(captain.id) + "/" + str(t.id)
+            else:
+                response["teams"][-1]["regisrationSuccess"] = True
     dbSession.close()
     return jsonify(response), 200
