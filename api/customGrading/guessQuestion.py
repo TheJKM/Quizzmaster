@@ -30,6 +30,7 @@ from customGrading.customGradingBase import CustomGradingBase
 # Class definition
 class GuessQuestion(CustomGradingBase):
     def executeGrading(self):
+        correctAnswer = float(self.correctAnswer)
         # Step 1: Determine the best answer
         answers = []
         sum_valid_answers = 0
