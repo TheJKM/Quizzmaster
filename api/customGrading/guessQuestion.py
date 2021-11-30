@@ -30,25 +30,22 @@ from customGrading.customGradingBase import CustomGradingBase
 # Class definition
 class GuessQuestion(CustomGradingBase):
     def executeGrading(self):
+        # Step 1: Extract correct answer and team answers
         correctAnswer = float(self.correctAnswer)
-        # Step 1: Determine the best answer
         answers = []
-        sum_valid_answers = 0
         valid_answers = 0
         for team in self.dataset:
             try:
                 value_float = self.extractFloats(team["value"])
-                sum_valid_answers += value_float
                 valid_answers += 1
             except (ValueError, TypeError) as error:
                 value_float = -1e10
             answers.append(value_float)
-        mean_guess = sum_valid_answers / valid_answers
 
         # Step 2: Determine which answers were best
         differences = []
         for ans in answers:
-            differences.append(abs(ans-mean_guess))
+            differences.append(abs(ans-correctAnswer))
         differences.sort()
 
         # Step 3: Set intervals for points
@@ -70,7 +67,7 @@ class GuessQuestion(CustomGradingBase):
                 value_float = self.extractFloats(team["value"])
             except (ValueError, TypeError) as error:
                 value_float = -1e10
-            difference = abs(value_float-mean_guess)
+            difference = abs(value_float-correctAnswer)
             for i in range(len(cutoffs)):
                 if difference <= cutoffs[i]:
                     team["points"] = self.maxPoints - i*0.5
