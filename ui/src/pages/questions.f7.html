@@ -450,6 +450,11 @@ export default (props, {$f7, $on, $update}) => {
       $f7.popup.open(".popup-new-question");
       $update(() => {
         $f7.form.fillFromData('#new-question-form', questionInEdit);
+        if (document.getElementById("add-button") != null) {
+          document.getElementById("add-button").addEventListener("click", (event) => {
+            event.preventDefault();
+          });
+        }
       });
     });
   }
