@@ -22,8 +22,11 @@
 
 # Include dependencies
 from datetime import datetime
+from pytz import timezone
 
 
 # Check if the given timestamp is still valid
 def isTimestampValid(timestamp):
+    europe = timezone('Europe/Berlin')
+    timestamp = europe.localize(timestamp)
     return datetime.now().astimezone() <= timestamp

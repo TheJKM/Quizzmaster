@@ -61,6 +61,7 @@ bot = commands.Bot(command_prefix="/", description=description, intents=intents)
 @bot.event
 async def on_ready():
     print("Bot is up and running: User " + bot.user.name + ", ID " + str(bot.user.id))
+    startThreads()
 
 
 @bot.event
@@ -90,16 +91,15 @@ async def on_raw_reaction_remove(payload):
     await evaluateReactionAnswer(reaction, message, user)
 
 
-# Start listener
-listener = listenerThread(bot)
-listener.daemon = True
-listener.start()
-
-
-# Start expiration checker
-checker = expirationCheckThread(bot)
-checker.daemon = True
-checker.start()
+def startThreads():
+    # Start listener
+    listener = listenerThread(bot)
+    listener.daemon = True
+    listener.start()
+    # Start expiration checker
+    checker = expirationCheckThread(bot)
+    checker.daemon = True
+    checker.start()
 
 
 # Init database
