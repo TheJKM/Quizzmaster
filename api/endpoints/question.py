@@ -231,7 +231,7 @@ def prepareQuestions():
         return "ACCESS_DENIED", 403
     ids = json.loads(request.form.get("ids"))
     dbSession = database.createSession()
-    questions = dbSession.query(Question).all()
+    questions = dbSession.query(Question).order_by(Question.displayId).all()
     questionsPreparing = []
     for question in questions:
         if question.id in ids:
