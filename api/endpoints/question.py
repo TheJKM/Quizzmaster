@@ -293,7 +293,7 @@ def dispatchQuestions():
     if len(ids) > 0:
         return "ERR_INVALID_IDS", 400
     m, s = divmod(int(request.form.get("time")), 60)
-    target = datetime.datetime.now() + datetime.timedelta(minutes=m) + datetime.timedelta(seconds=s)
+    target = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=m) + datetime.timedelta(seconds=s)
     clocktime = target.strftime("bis %H:%M:%S")
     if m > 0:
         time = str(m) + " Minuten und " + str(s) + " Sekunden (" + clocktime + ")"
