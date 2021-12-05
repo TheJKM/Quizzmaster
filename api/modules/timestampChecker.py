@@ -26,4 +26,4 @@ from datetime import datetime
 
 # Check if the given timestamp is still valid
 def isTimestampValid(timestamp):
-    return datetime.now() <= timestamp
+    return datetime.now().astimezone() <= timestamp
