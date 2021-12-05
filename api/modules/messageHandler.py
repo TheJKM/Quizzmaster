@@ -88,17 +88,19 @@ async def asyncHandleMessage(message, bot):
     elif message["type"] == messageType.dispatchQuestions:
         guild = getGuild(bot)
         textChannel = guild.get_channel(int(config.CONFIG_QUESTIONS_CHANNEL))
-        await textChannel.send(config.CONFIG_QUESTION_INTRODUCTION.format(time=message["time"]))
+        text = config.CONFIG_QUESTION_INTRODUCTION.format(time=message["time"])
         for question in message["questions"]:
-            await textChannel.send("Frage " + str(question["displayId"]) + ": " + question["question"])
+            text += "\nFrage " + str(question["displayId"]) + ": " + question["question"]
             if "multipleChoice" in question:
-                await textChannel.send("Wählt aus den folgenden Antwortmöglichkeiten:")
+                text += "\nWählt aus den folgenden Antwortmöglichkeiten:"
                 i = 1
                 for option in json.loads(question["multipleChoice"]):
-                    await textChannel.send("Option " + str(i) + ": " + option)
+                    text += "\nOption " + str(i) + ": " + option
                     i += 1
             elif "trueFalse" in question:
-                await textChannel.send("Wahr oder falsch?")
+                text += "\nWahr oder falsch?"
+        text += "\n"
+        await textChannel.send(text)
     elif message["type"] == messageType.prepareQuestions:
         guild = getGuild(bot)
         dbSession = database.createSession()
