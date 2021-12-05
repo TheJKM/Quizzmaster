@@ -638,6 +638,7 @@ export default (props, {$f7, $on, $update}) => {
       } else {
         $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
       }
+      deselectAllQuestions();
       loadData();
     })
   }
@@ -661,6 +662,7 @@ export default (props, {$f7, $on, $update}) => {
               } else {
                 $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte die Situation in Discord prüfen.");
               }
+              deselectAllQuestions();
               loadData();
             });
           } else {
@@ -684,6 +686,7 @@ export default (props, {$f7, $on, $update}) => {
       } else {
         $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
       }
+      deselectAllQuestions();
       loadData();
     })
   }
@@ -699,6 +702,7 @@ export default (props, {$f7, $on, $update}) => {
       } else {
         $f7.dialog.alert("Es ist ein Fehler aufgetreten. Bitte erneut versuchen.");
       }
+      deselectAllQuestions();
       loadData();
     })
   }
@@ -716,6 +720,12 @@ export default (props, {$f7, $on, $update}) => {
       api.send("/api/question/" + id + "/csv", "POST", formData, true);
     }
     element.click();
+  }
+
+  const deselectAllQuestions = () => {
+    for (const question of questions) {
+      document.getElementById("select-" + question.id).checked = false;
+    }
   }
 
   $on("pageInit", () => {
