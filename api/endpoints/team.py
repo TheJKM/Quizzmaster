@@ -50,6 +50,8 @@ def getTeams():
         "teamInformation": [],
     }
     first = True
+    valid = 0
+    invalid = 0
     for t in teams:
         if first:
             first = False
@@ -69,12 +71,17 @@ def getTeams():
         if captain is not None:
             if captain.registrationStatus == registrationState.added:
                 response["teams"][-1]["regisrationSuccess"] = True
+                valid += 1
             else:
                 response["teams"][-1]["regisrationSuccess"] = False
                 response["teams"][-1]["finalizeLink"] = config.CONFIG_BASE_DOMAIN + "/api/join/authenticate/" + str(
                     captain.id) + "/" + str(t.id)
+                invalid += 1
         else:
             response["teams"][-1]["regisrationSuccess"] = False
             response["teams"][-1]["finalizeLink"] = "Error: No link available, captain is not in database."
+            invalid += 1
+    response["valid"] = valid
+    response["invalid"] = invalid
     dbSession.close()
     return jsonify(response), 200

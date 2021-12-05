@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="page-content">
-      <div class="block-title">Registrierte Teams</div>
+      <div class="block-title">Registrierte Teams (Fertig: ${valid}, Fehlerhaft: ${invalid})</div>
       <div class="data-table card">
         <table>
           <thead>
@@ -88,6 +88,8 @@ export default (props, {$f7, $on, $update}) => {
   let teams = [];
   let teamInformation = [];
   let toastIcon;
+  let valid = 0;
+  let invalid = 0;
 
   const loadData = () => {
     $f7.preloader.show();
@@ -96,6 +98,8 @@ export default (props, {$f7, $on, $update}) => {
       $f7.preloader.hide();
       teams = result.teams;
       teamInformation = result.teamInformation;
+      valid = result.valid;
+      invalid = result.invalid;
       $update();
     });
   }
