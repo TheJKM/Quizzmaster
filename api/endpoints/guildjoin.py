@@ -31,7 +31,10 @@ import re
 from models.settings import Settings
 from models.team import Team
 from models.user import User
+from models.question import Question
 from enums.registrationState import registrationState
+from enums.questionState import questionState
+from enums.questionType import questionType
 from modules.database import database
 from modules.teamid import teamid
 from modules.discordDispatcher import discordDispatcher
@@ -186,6 +189,22 @@ def guildJoinFinalize():
             if mail.send(team.name, team.displayId, url, user.email) < 0:
                 dbSession.close()
                 return redirect(config.CONFIG_BASE_DOMAIN + "/start_mail")
+        questions = dbSession.query(Question).filter(Question.state == questionState.waiting).all()
+        questionsPreparing = []
+        for question in questions:
+            currentPrepareQuestion = {
+                "displayId": question.displayId,
+                "questionId": question.id,
+                "category": question.category
+            }
+            if question.type == questionType.multipleChoice or question.type == questionType.customMc:
+                currentPrepareQuestion["multipleChoice"] = len(json.loads(question.options))
+            elif question.type == questionType.trueFalse:
+                currentPrepareQuestion["trueFalse"] = True
+            questionsPreparing.append(currentPrepareQuestion)
+        if len(questionsPreparing) > 0:
+            discord = discordDispatcher()
+            discord.prepareQuestions(questionsPreparing, team.id)
         dbSession.close()
         return redirect(config.CONFIG_BASE_DOMAIN + "/start_success")
     else:
