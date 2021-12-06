@@ -62,7 +62,10 @@ class GuessQuestion(CustomGradingBase):
         index = -1
         for i in range(point_range):
             index += point_size
-            cutoffs.append(differences[index])
+            try:
+                cutoffs.append(differences[index])
+            except IndexError:
+                break
 
         # Step 5: Assign the points to each team given the selected clusters
         for team in self.dataset:
