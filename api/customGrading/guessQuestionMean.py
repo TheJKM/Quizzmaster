@@ -61,14 +61,21 @@ class GuessQuestionMean(CustomGradingBase):
         index = -1
         for i in range(point_range):
             index += point_size
-            cutoffs.append(differences[index])
+            try:
+                cutoffs.append(differences[index])
+            except IndexError:
+                break
 
         # Step 5: Assign the points to each team given the selected clusters
         for team in self.dataset:
             try:
                 value_float = self.extractFloats(team["value"])
             except (ValueError, TypeError) as error:
-                value_float = -1e10
+                team["points"] = 0.0
+                continue
+            if value_float == -1e10:
+                team["points"] = 0.0
+                continue
             difference = abs(value_float-mean_guess)
             for i in range(len(cutoffs)):
                 if difference <= cutoffs[i]:
