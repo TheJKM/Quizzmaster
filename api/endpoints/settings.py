@@ -58,7 +58,7 @@ def teamRegistrationOpen():
     if enabled.value == "false":
         dbSession.close()
         return "CLOSED", 200
-    teams = dbSession.query(Team).all()
+    teams = dbSession.query(Team).filter(Team.textChannelId is not None).all()
     if len(teams) >= config.CONFIG_MAX_TEAM_COUNT:
         dbSession.close()
         return "FULL", 200
