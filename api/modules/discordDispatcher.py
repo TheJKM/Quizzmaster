@@ -61,9 +61,11 @@ class discordDispatcher:
         self.__client.send(request)
 
     # Prepare questions
-    def prepareQuestions(self, questions):
+    def prepareQuestions(self, questions, team=None):
         request = {
             "type": messageType.prepareQuestions,
             "questions": questions,
         }
+        if team is not None:
+            request["team"] = team
         self.__client.send(request)

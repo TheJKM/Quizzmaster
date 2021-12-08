@@ -104,7 +104,10 @@ async def asyncHandleMessage(message, bot):
     elif message["type"] == messageType.prepareQuestions:
         guild = getGuild(bot)
         dbSession = database.createSession()
-        teams = dbSession.query(Team).all()
+        if "team" in message:
+            teams = dbSession.query(Team).filter(Team.id == message["team"]).all()
+        else:
+            teams = dbSession.query(Team).all()
         for team in teams:
             if team.displayId is not None and team.textChannelId is not None and team.voiceChannelId is not None:
                 textChannel = guild.get_channel(int(team.textChannelId))
