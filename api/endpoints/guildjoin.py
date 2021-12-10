@@ -189,7 +189,7 @@ def guildJoinFinalize():
             if mail.send(team.name, team.displayId, url, user.email) < 0:
                 dbSession.close()
                 return redirect(config.CONFIG_BASE_DOMAIN + "/start_mail")
-        questions = dbSession.query(Question).filter(Question.state == questionState.waiting).order_by(Question.displayId).all()
+        questions = dbSession.query(Question).filter(Question.state == questionState.waiting).all()
         questionsPreparing = []
         for question in questions:
             currentPrepareQuestion = {
