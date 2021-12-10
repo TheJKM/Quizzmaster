@@ -189,22 +189,22 @@ def guildJoinFinalize():
             if mail.send(team.name, team.displayId, url, user.email) < 0:
                 dbSession.close()
                 return redirect(config.CONFIG_BASE_DOMAIN + "/start_mail")
-        questions = dbSession.query(Question).filter(Question.state == questionState.waiting).all()
-        questionsPreparing = []
-        for question in questions:
-            currentPrepareQuestion = {
-                "displayId": question.displayId,
-                "questionId": question.id,
-                "category": question.category
-            }
-            if question.type == questionType.multipleChoice or question.type == questionType.customMc:
-                currentPrepareQuestion["multipleChoice"] = len(json.loads(question.options))
-            elif question.type == questionType.trueFalse:
-                currentPrepareQuestion["trueFalse"] = True
-            questionsPreparing.append(currentPrepareQuestion)
-        if len(questionsPreparing) > 0:
-            discord = discordDispatcher()
-            discord.prepareQuestions(questionsPreparing, team.id)
+            questions = dbSession.query(Question).filter(Question.state == questionState.waiting).all()
+            questionsPreparing = []
+            for question in questions:
+                currentPrepareQuestion = {
+                    "displayId": question.displayId,
+                    "questionId": question.id,
+                    "category": question.category
+                }
+                if question.type == questionType.multipleChoice or question.type == questionType.customMc:
+                    currentPrepareQuestion["multipleChoice"] = len(json.loads(question.options))
+                elif question.type == questionType.trueFalse:
+                    currentPrepareQuestion["trueFalse"] = True
+                questionsPreparing.append(currentPrepareQuestion)
+            if len(questionsPreparing) > 0:
+                discord = discordDispatcher()
+                discord.prepareQuestions(questionsPreparing, team.id)
         dbSession.close()
         return redirect(config.CONFIG_BASE_DOMAIN + "/start_success")
     else:
